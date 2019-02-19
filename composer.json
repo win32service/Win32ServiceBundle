@@ -22,7 +22,7 @@
   },
   "require": {
     "php": "^7.1.0 <7.4.0",
-    "win32service/service-library": "dev-new_feature_0_4",
+    "win32service/service-library": "dev-new_feature_0_4@dev",
     "symfony/http-kernel": "^4.0",
     "symfony/console": "^4.0",
     "symfony/config": "^4.0",
