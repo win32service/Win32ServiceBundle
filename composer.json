@@ -1,0 +1,30 @@
+{
+  "name":  "win32service/win32servicebundle",
+  "description": "Bundle for integrate the win32service/service-library into a Symfony Project",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Jean-Baptiste Nahan",
+      "email": "jean-baptiste@nahan.fr",
+      "homepage": "https://win32service.github.io",
+      "role": "Lead Dev"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Win32ServiceBundle\\": "Win32ServiceBundle/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Win32ServiceBundle\\Tests\\": "tests/"
+    }
+  },
+  "require": {
+    "php": "^7.1.0 <7.4.0",
+    "win32service/service-library": "dev-new_feature_0_4"
+  },
+  "require-dev": {
+    "atoum/atoum": "^3.3"
+  }
+}
