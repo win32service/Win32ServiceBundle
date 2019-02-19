@@ -50,3 +50,37 @@ win32_service:
 
 For each service, add a sub-class of `Win32Service\Model\AbstractServiceRunner`.
 The sub-class must be set in service with the tag `win32service.runner` with an alias name corresponding to the `service_id`.
+
+## Exemple
+
+Extension configuration:
+
+```yaml
+win32_service:
+    windows_local_encoding: ISO-8859-1
+    services:
+      -
+        service_id: "my_service"
+        displayed_name: "My beatiful service"
+        #[...]
+
+```
+
+
+Sub-class:
+
+```php
+
+class MyRunner extends \Win32Service\Model\AbstractServiceRunner
+{}
+
+```
+
+Service configuration:
+
+```yaml
+services:
+    MyRunner:
+      tags:
+        - { name: win32service.runner, alias: 'my_service'}
+```
