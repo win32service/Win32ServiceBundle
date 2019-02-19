@@ -13,20 +13,21 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Win32Service\Model\ServiceIdentifier;
 use Win32Service\Model\RunnerServiceInterface;
+use Win32ServiceBundle\Service\RunnerManager;
 
 class ExecuteServiceCommand extends Command
 {
     // the name of the command (the part after "bin/console")
     protected static $defaultName = 'win32service:run-service';
 
-    const ALL_SERVICE = 'All';
-
     /**
      * @var array
      */
     private $config;
 
-
+    /**
+     * @var RunnerManager
+     */
     private $service;
 
     protected function configure()
@@ -46,7 +47,7 @@ class ExecuteServiceCommand extends Command
 
     }
 
-    public function setService(RunnerServiceInterface $service) {
+    public function setService(RunnerManager $service) {
         $this->service = $service;
     }
 
@@ -56,7 +57,7 @@ class ExecuteServiceCommand extends Command
             throw new \Exception('The configuration of win32Service is not defined into command');
         }
         if ($this->service === null) {
-            throw new \Exception('The service for run is not defined into command');
+            throw new \Exception('The service runner manager is not defined into command');
         }
 
         $serviceName = $input->getArgument('service-name');
@@ -64,16 +65,24 @@ class ExecuteServiceCommand extends Command
         $maxRun = $input->getOption('max-run');
 
         $infos=$this->getServiceInformation($serviceName, $threadNumber);
+        if ($infos === null) {
+            throw new \Exception(sprintf('The information for service %s is not found', $serviceName));
+        }
 
         if ($maxRun === null) {
             $maxRun = $infos['run_max'];
         }
 
-        $this->service->setServiceId(ServiceIdentifier::identify($serviceName, $infos['machine']));
+        $runner = $this->service->getRunner($infos['service_id']);
+        if ($runner === null) {
+            throw new \Exception(sprintf('The runner for service "%1$s" is not found. Add tag "win32service.runner" with alias "%1$s" at the service runner service', $infos['service_id']));
+        }
 
-        $this->service->defineExitModeAndCode($infos['exit']['graceful'], $infos['exit']['code']);
+        $runner->setServiceId(ServiceIdentifier::identify($serviceName, $infos['machine']));
 
-        $this->service->doRun($maxRun, $threadNumber);
+        $runner->defineExitModeAndCode($infos['exit']['graceful'], $infos['exit']['code']);
+
+        $runner->doRun($maxRun, $threadNumber);
 
     }
 
@@ -83,5 +92,6 @@ class ExecuteServiceCommand extends Command
                 return $service;
             }
         }
+        return null;
     }
 }

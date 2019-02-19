@@ -6,7 +6,13 @@
 
 namespace Win32ServiceBundle;
 
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Win32ServiceBundle\DependencyInjection\TagRunnerCompilerPass;
+
 class Win32ServiceBundle extends \Symfony\Component\HttpKernel\Bundle\Bundle
 {
-
+    public function build(ContainerBuilder $container)
+    {
+        $container->addCompilerPass(new TagRunnerCompilerPass());
+    }
 }
