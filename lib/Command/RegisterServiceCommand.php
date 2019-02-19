@@ -91,6 +91,10 @@ class RegisterServiceCommand extends Command
                     $serviceInfos->defineUserService($service['user']['account'], $service['user']['password']);
                 }
 
+                if (count($service['dependencies']) >0) {
+                    $serviceInfos->defineDependencies($service['dependencies']);
+                }
+
                 try {
                     $adminService->registerService($serviceInfos);
                     $output->writeln('Registration success for <info>' . $serviceInfos->serviceId() . '</info>');
