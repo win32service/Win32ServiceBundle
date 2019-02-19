@@ -31,7 +31,7 @@ class ActionServiceCommand extends Command
         $this->setDescription("Send the action at all service");
         $this->addArgument('control', InputArgument::REQUIRED, "The action you want", 'start');
         $this->addOption('service-name', 's', InputOption::VALUE_REQUIRED, 'Send the controle to the service with service_id. The value must be equal to the configuration.', self::ALL_SERVICE);
-        $this->addOption('custom-action', 'c', InputOption::VALUE_REQUIRED, 'The custom control send to the service.', null);
+        $this->addOption('custom-action', 'c', InputOption::VALUE_REQUIRED, 'The custom control send to the service.', "0");
     }
 
     /**
