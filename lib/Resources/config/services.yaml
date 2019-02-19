@@ -17,3 +17,7 @@ services:
     autowire: true
     calls:
       - ['defineBundleConfig', ['%win32service.config%']]
+  Win32ServiceBundle\Command\ActionServiceCommand:
+    autowire: true
+    calls:
+      - ['defineBundleConfig', ['%win32service.config%']]
