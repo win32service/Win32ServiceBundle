@@ -45,3 +45,8 @@ win32_service:
           - Netman # An example of dependency.
 
 ```
+
+# Define the runner
+
+For each service, add a sub-class of `Win32Service\Model\AbstractServiceRunner`.
+The sub-class must be set in service with the tag `win32service.runner` with an alias name corresponding to the `service_id`.
