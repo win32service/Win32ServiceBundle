@@ -29,9 +29,9 @@ class ActionServiceCommand extends Command
     protected function configure()
     {
         $this->setDescription("Send the action at all service");
-        $this->addArgument('control', InputArgument::REQUIRED, "The action you want", 'start');
+        $this->addArgument('control', InputArgument::REQUIRED, "The action you want");
         $this->addOption('service-name', 's', InputOption::VALUE_REQUIRED, 'Send the controle to the service with service_id. The value must be equal to the configuration.', self::ALL_SERVICE);
-        $this->addOption('custom-action', 'c', InputOption::VALUE_REQUIRED, 'The custom control send to the service.', "0");
+        $this->addOption('custom-action', 'c', InputOption::VALUE_REQUIRED, 'The custom control send to the service.', null);
     }
 
     /**
