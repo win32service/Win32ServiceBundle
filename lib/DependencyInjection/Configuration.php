@@ -57,9 +57,14 @@ class Configuration implements ConfigurationInterface
                                     ->integerNode('reset_period')->defaultValue(86400)->end()
                                 ->end()
                             ->end()
+                            ->arrayNode('dependencies')
+                                ->defaultValue([])
+                                ->scalarPrototype()
+                                ->end()
+                            ->end()
                         ->end()
                     ->end()
-                ->end() // twitter
+                ->end()
             ->end()
         ;
 
