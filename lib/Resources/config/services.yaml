@@ -15,3 +15,7 @@ services:
     autowire: true
     calls:
       - ['defineBundleConfig', ['%win32service.config%']]
+  Win32ServiceBundle\Command\UnregisterServiceCommand:
+    autowire: true
+    calls:
+      - ['defineBundleConfig', ['%win32service.config%']]

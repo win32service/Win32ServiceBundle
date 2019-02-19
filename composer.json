@@ -22,7 +22,11 @@
   },
   "require": {
     "php": "^7.1.0 <7.4.0",
-    "win32service/service-library": "*"
+    "win32service/service-library": "dev-new_feature_0_4",
+    "symfony/http-kernel": "^4.0",
+    "symfony/console": "^4.0",
+    "symfony/config": "^4.0",
+    "symfony/dependency-injection": "^4.0"
   },
   "require-dev": {
     "atoum/atoum": "^3.3"
