@@ -12,7 +12,7 @@
   ],
   "autoload": {
     "psr-4": {
-      "Win32ServiceBundle\\": "Win32ServiceBundle/"
+      "Win32ServiceBundle\\": "lib/"
     }
   },
   "autoload-dev": {
