@@ -26,6 +26,11 @@ class RegisterServiceCommand extends Command
      */
     private $config;
 
+    /**
+     * @var string
+     */
+    private $projectRoot;
+
     protected function configure()
     {
         $this->setDescription("Register all service into Windows Service Manager");
@@ -38,7 +43,14 @@ class RegisterServiceCommand extends Command
      */
     public function defineBundleConfig(array $config) {
         $this->config = $config;
+    }
 
+    /**
+     * @param string $projectRoot
+     * @required
+     */
+    public function defineProjectRoot(string $projectRoot) {
+        $this->projectRoot = $projectRoot;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -65,12 +77,19 @@ class RegisterServiceCommand extends Command
             for ($i = 0; $i < $threadNumber; $i++) {
                 $nbService++;
                 //Init the service informations
+                $path = $service['description'];
+                $args = sprintf($service['script_params'], $i);
+                if ($path === null) {
+                    $path = sprintf('%s\\bin\\console', $this->projectRoot);
+                    $args = sprintf('win32service:run-service %s %d', sprintf($service['service_id'], $i), $i );
+                }
+
                 $serviceInfos = new ServiceInformations(
                     ServiceIdentifier::identify(sprintf($service['service_id'], $i), $service['machine']),
                     mb_convert_encoding(sprintf($service['displayed_name'], $i), $windowsLocalEncoding, 'UTF-8'),
                     mb_convert_encoding($service['description'], $windowsLocalEncoding, 'UTF-8'),
-                    mb_convert_encoding($service['script_path'], $windowsLocalEncoding, 'UTF-8'),
-                    mb_convert_encoding(sprintf($service['script_params'], $i), $windowsLocalEncoding, 'UTF-8')
+                    mb_convert_encoding($path, $windowsLocalEncoding, 'UTF-8'),
+                    mb_convert_encoding($args, $windowsLocalEncoding, 'UTF-8')
                 );
 
                 $serviceInfos->defineIfStartIsDelayed($service['delayed_start']);

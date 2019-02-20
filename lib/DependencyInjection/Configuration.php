@@ -24,7 +24,7 @@ class Configuration implements ConfigurationInterface
                             ->scalarNode('service_id')->isRequired()->cannotBeEmpty()->end()
                             ->scalarNode('machine')->defaultValue('')->end()
                             ->scalarNode('displayed_name')->isRequired()->cannotBeEmpty()->end()
-                            ->scalarNode('script_path')->isRequired()->cannotBeEmpty()->end()
+                            ->scalarNode('script_path')->defaultNull()->end()
                             ->scalarNode('script_params')->defaultValue('')->end()
                             ->integerNode('run_max')->defaultValue(1000)->end()
                             ->integerNode('thread_count')->defaultValue(1)->end()
