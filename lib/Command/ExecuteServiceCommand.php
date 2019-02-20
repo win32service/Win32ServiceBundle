@@ -11,8 +11,10 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Win32Service\Model\ServiceIdentifier;
 use Win32Service\Model\RunnerServiceInterface;
+use Win32ServiceBundle\Logger\ThreadNumberEvent;
 use Win32ServiceBundle\Service\RunnerManager;
 
 class ExecuteServiceCommand extends Command
@@ -29,6 +31,11 @@ class ExecuteServiceCommand extends Command
      * @var RunnerManager
      */
     private $service;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
 
     protected function configure()
     {
@@ -49,6 +56,13 @@ class ExecuteServiceCommand extends Command
 
     public function setService(RunnerManager $service) {
         $this->service = $service;
+    }
+
+    /**
+     * @param EventDispatcherInterface $eventDispatcher
+     */
+    public function setEventDispatcher(EventDispatcherInterface $eventDispatcher) {
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -76,6 +90,11 @@ class ExecuteServiceCommand extends Command
         $runner = $this->service->getRunner($infos['service_id']);
         if ($runner === null) {
             throw new \Exception(sprintf('The runner for service "%1$s" is not found. Add tag "win32service.runner" with alias "%1$s" at the service runner service', $infos['service_id']));
+        }
+
+        if ($this->eventDispatcher !== null) {
+            $event = new ThreadNumberEvent($threadNumber);
+            $this->eventDispatcher->dispatch(ThreadNumberEvent::NAME, $event);
         }
 
         $runner->setServiceId(ServiceIdentifier::identify($serviceName, $infos['machine']));
