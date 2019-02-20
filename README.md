@@ -20,7 +20,7 @@ win32_service:
         service_id: "" # The service id.
         machine: "" # the machine name for this service. If `thread_count` > 1, you can use `%d` for define the place of the thread number
         displayed_name: "" # The friendly name of the service. If `thread_count` > 1, you can use `%d` for define the place of the thread number
-        script_path: "" # the script name
+        script_path: ~ # the script name. If not defined, the integrated execute command is used.
         script_params: "" # the argument for the script. if `thread_count` > 1, you can use `%d` for define the place of the thread number
         run_max: 1000 # number of loop before exit
         thread_count: 1 # the number of this service need to register. Use `%d` into `service_id`, `displayed_name` and `script_params` for contains the service number.
