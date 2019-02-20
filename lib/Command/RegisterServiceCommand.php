@@ -81,7 +81,8 @@ class RegisterServiceCommand extends Command
                 $path = $service['script_path'];
                 $args = sprintf($service['script_params'], $i);
                 if ($path === null) {
-                    $path = sprintf('%s\\bin\\console', $this->projectRoot);
+                    $path = realpath($_SERVER['PHP_SELF']);
+                    //$path = sprintf('%s\\bin\\console', $this->projectRoot);
                     $args = sprintf('%s %s %d', ExecuteServiceCommand::getDefaultName(),$serviceThreadId, $i );
                 }
 
