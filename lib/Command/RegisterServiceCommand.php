@@ -17,7 +17,7 @@ use Win32Service\Service\ServiceAdminManager;
 class RegisterServiceCommand extends Command
 {
     // the name of the command (the part after "bin/console")
-    protected static $defaultName = 'win32service:register-services';
+    protected static $defaultName = 'win32service:register';
 
     const ALL_SERVICE = 'All';
 
@@ -82,7 +82,7 @@ class RegisterServiceCommand extends Command
                 $args = sprintf($service['script_params'], $i);
                 if ($path === null) {
                     $path = sprintf('%s\\bin\\console', $this->projectRoot);
-                    $args = sprintf('win32service:run-service %s %d', $serviceThreadId, $i );
+                    $args = sprintf('%s %s %d', ExecuteServiceCommand::getDefaultName(),$serviceThreadId, $i );
                 }
 
                 $serviceInfos = new ServiceInformations(

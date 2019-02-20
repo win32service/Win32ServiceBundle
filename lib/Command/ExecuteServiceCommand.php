@@ -18,7 +18,7 @@ use Win32ServiceBundle\Service\RunnerManager;
 class ExecuteServiceCommand extends Command
 {
     // the name of the command (the part after "bin/console")
-    protected static $defaultName = 'win32service:run-service';
+    protected static $defaultName = 'win32service:run';
 
     /**
      * @var array

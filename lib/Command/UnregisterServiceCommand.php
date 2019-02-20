@@ -16,7 +16,7 @@ use Win32Service\Service\ServiceAdminManager;
 class UnregisterServiceCommand extends Command
 {
     // the name of the command (the part after "bin/console")
-    protected static $defaultName = 'win32service:unregister-services';
+    protected static $defaultName = 'win32service:unregister';
 
     const ALL_SERVICE = 'All';
 

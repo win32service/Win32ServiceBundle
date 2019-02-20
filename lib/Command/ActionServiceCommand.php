@@ -17,7 +17,7 @@ use Win32Service\Service\ServiceStateManager;
 class ActionServiceCommand extends Command
 {
     // the name of the command (the part after "bin/console")
-    protected static $defaultName = 'win32service:action-services';
+    protected static $defaultName = 'win32service:action';
 
     const ALL_SERVICE = 'All';
 
