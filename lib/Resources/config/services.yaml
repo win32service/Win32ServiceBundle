@@ -23,3 +23,8 @@ services:
     autowire: true
     calls:
       - ['defineBundleConfig', ['%win32service.config%']]
+  Win32ServiceBundle\Command\ExecuteServiceCommand:
+    autowire: true
+    calls:
+      - ['defineBundleConfig', ['%win32service.config%']]
+      - ['setService', ['@Win32ServiceBundle\Service\RunnerManager']]
