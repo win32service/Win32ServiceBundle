@@ -12,6 +12,7 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Win32ServiceBundle\Logger\ThreadNumberEvent;
 use Win32ServiceBundle\Logger\ThreadNumberProcessor;
 
 class Win32ServiceExtension extends Extension
@@ -43,7 +44,7 @@ class Win32ServiceExtension extends Extension
 
         //Add the tag for receive the thread number event
         if (!$definition->hasTag('kernel.event_listener')) {
-            $definition->addTag('kernel.event_listener', ['event'=>'service.thread_number', 'method'=>'setThreadNumber']);
+            $definition->addTag('kernel.event_listener', ['event'=>ThreadNumberEvent::NAME, 'method'=>'setThreadNumber']);
         }
 
         //Add tags for each channel defined
