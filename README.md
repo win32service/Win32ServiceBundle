@@ -14,14 +14,18 @@ Add file `config/win32service.yaml` with this content:
 
 ```yaml
 win32_service:
-    windows_local_encoding: ISO-8859-15 # The windows local encoding for convert the string UTF-8 from configuration to the local encodding
+    windows_local_encoding: ISO-8859-15 # The windows local encoding for convert the string UTF-8 from configuration to the local encoding.
+    logging_extra: # This configuration enable a processor for Monolog
+      enable: false # Enable a processor for add the thread number into the extra fields
+        channels: # The list of channels whom the processor add the thread number. If empty, the thread number is added for all channels.
+         - ref1
     services:
       -
-        service_id: "" # The service id.
-        machine: "" # the machine name for this service. If `thread_count` > 1, you can use `%d` for define the place of the thread number
-        displayed_name: "" # The friendly name of the service. If `thread_count` > 1, you can use `%d` for define the place of the thread number
+        service_id: "" # The service id. If `thread_count` > 1, you can use `%d` to define the place of the thread number
+        machine: "" # the machine name for this service. 
+        displayed_name: "" # The friendly name of the service. If `thread_count` > 1, you can use `%d` to define the place of the thread number
         script_path: ~ # the script name. If not defined, the integrated execute command is used.
-        script_params: "" # the argument for the script. if `thread_count` > 1, you can use `%d` for define the place of the thread number
+        script_params: "" # the arguments for the script. if `thread_count` > 1, you can use `%d` to define the place of the thread number
         run_max: 1000 # number of loop before exit
         thread_count: 1 # the number of this service need to register. Use `%d` into `service_id`, `displayed_name` and `script_params` for contains the service number.
         description: "" # the service description
