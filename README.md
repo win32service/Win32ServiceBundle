@@ -55,7 +55,7 @@ win32_service:
 For each service, add a sub-class of `Win32Service\Model\AbstractServiceRunner`.
 The sub-class must be set in service with the tag `win32service.runner` with an alias name corresponding to the `service_id`.
 
-## Exemple
+## Exemple with one thread
 
 Extension configuration:
 
@@ -65,7 +65,7 @@ win32_service:
     services:
       -
         service_id: "my_service"
-        displayed_name: "My beatiful service"
+        displayed_name: "My beautiful service"
         #[...]
 
 ```
@@ -80,7 +80,7 @@ class MyRunner extends \Win32Service\Model\AbstractServiceRunner
 
 ```
 
-Service configuration:
+Service configuration :
 
 ```yaml
 services:
@@ -88,3 +88,106 @@ services:
       tags:
         - { name: win32service.runner, alias: 'my_service'}
 ```
+
+
+
+## Exemple with many thread
+
+Extension configuration:
+
+```yaml
+win32_service:
+    windows_local_encoding: ISO-8859-1
+    services:
+      -
+        service_id: "my_service_%d"
+        displayed_name: "My beautiful service"
+        thread_count: 3
+        #[...]
+
+```
+
+
+Sub-class:
+
+```php
+
+class MyRunner extends \Win32Service\Model\AbstractServiceRunner
+{}
+
+```
+
+Service configuration :
+
+```yaml
+services:
+    MyRunner:
+      tags:
+        - { name: win32service.runner, alias: 'my_service_%d'}
+```
+
+# Manage the service
+
+Open an administrator cmd window and go to your project.
+
+## Register the service
+
+For register all service, run this command:
+
+```bash
+php bin\console win32service:register
+```
+
+For register only one service (without thread number) run:
+
+```bash
+php bin\console win32service:register --service-name=my_service
+```
+For register only one service (with thread number) run:
+
+```bash
+php bin\console win32service:register --service-name=my_service_%d
+```
+
+## Unregister the service
+
+For unregister all service, run this command:
+
+```bash
+php bin\console win32service:unregister
+```
+
+For unregister only one service (without thread number) run:
+
+```bash
+php bin\console win32service:unregister --service-name=my_service
+```
+
+For unregister only one service (with thread number) run:
+
+```bash
+php bin\console win32service:unregister --service-name=my_service_%d
+```
+
+
+## Sent action at your services
+
+This command start all service (and all thread) defined in your project.
+
+```bash
+php bin\console win32service:action start
+```
+
+For sent the action for one service and all thread:
+
+```bash
+php bin\console win32service:action start --service-name=my_service_%d
+```
+
+For sent the action for one thread of one service:
+
+```bash
+php bin\console win32service:action start --service-name=my_service_1
+```
+
+
