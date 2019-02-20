@@ -77,15 +77,16 @@ class RegisterServiceCommand extends Command
             for ($i = 0; $i < $threadNumber; $i++) {
                 $nbService++;
                 //Init the service informations
+                $serviceThreadId = sprintf($service['service_id'], $i);
                 $path = $service['script_path'];
                 $args = sprintf($service['script_params'], $i);
                 if ($path === null) {
                     $path = sprintf('%s\\bin\\console', $this->projectRoot);
-                    $args = sprintf('win32service:run-service %s %d', sprintf($service['service_id'], $i), $i );
+                    $args = sprintf('win32service:run-service %s %d', $serviceThreadId, $i );
                 }
 
                 $serviceInfos = new ServiceInformations(
-                    ServiceIdentifier::identify(sprintf($service['service_id'], $i), $service['machine']),
+                    ServiceIdentifier::identify($serviceThreadId, $service['machine']),
                     mb_convert_encoding(sprintf($service['displayed_name'], $i), $windowsLocalEncoding, 'UTF-8'),
                     mb_convert_encoding($service['description'], $windowsLocalEncoding, 'UTF-8'),
                     mb_convert_encoding($path, $windowsLocalEncoding, 'UTF-8'),
