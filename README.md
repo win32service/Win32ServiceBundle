@@ -53,7 +53,7 @@ win32_service:
 # Define the runner
 
 For each service, add a sub-class of `Win32Service\Model\AbstractServiceRunner`.
-The sub-class must be set in service with the tag `win32service.runner` with an alias name corresponding to the `service_id`.
+The sub-class must be configured in service with the tag `win32service.runner` with an alias name corresponding to the `service_id`.
 
 ## Exemple with one thread
 
@@ -184,7 +184,7 @@ For sent the action for one service and all thread:
 php bin\console win32service:action start --service-name=my_service_%d
 ```
 
-For sent the action for one thread of one service:
+For sent the action for one thread of one service (work same if the service has only one thread):
 
 ```bash
 php bin\console win32service:action start --service-name=my_service_1
