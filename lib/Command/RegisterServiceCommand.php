@@ -77,7 +77,7 @@ class RegisterServiceCommand extends Command
             for ($i = 0; $i < $threadNumber; $i++) {
                 $nbService++;
                 //Init the service informations
-                $path = $service['description'];
+                $path = $service['script_path'];
                 $args = sprintf($service['script_params'], $i);
                 if ($path === null) {
                     $path = sprintf('%s\\bin\\console', $this->projectRoot);
