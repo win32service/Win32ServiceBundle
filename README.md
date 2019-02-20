@@ -47,7 +47,6 @@ win32_service:
           reset_period: 86400 # The period before reset the fail count (in minutes)
         dependencies: # The list of service depends
           - Netman # An example of dependency.
-
 ```
 
 # Define the runner
@@ -67,17 +66,14 @@ win32_service:
         service_id: "my_service"
         displayed_name: "My beautiful service"
         #[...]
-
 ```
 
 
 Sub-class:
 
 ```php
-
 class MyRunner extends \Win32Service\Model\AbstractServiceRunner
 {}
-
 ```
 
 Service configuration :
@@ -88,8 +84,6 @@ services:
       tags:
         - { name: win32service.runner, alias: 'my_service'}
 ```
-
-
 
 ## Exemple with many thread
 
@@ -189,5 +183,3 @@ For sent the action for one thread of one service (work same if the service has 
 ```bash
 php bin\console win32service:action start --service-name=my_service_1
 ```
-
-
