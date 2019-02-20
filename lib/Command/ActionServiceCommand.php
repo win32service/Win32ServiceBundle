@@ -49,7 +49,7 @@ class ActionServiceCommand extends Command
             throw new \Exception('The configuration of win32Service is not defined into command');
         }
 
-        $serviceToRegister = $input->getOption('service-name');
+        $serviceToAction = $input->getOption('service-name');
         $customAction = $input->getOption('custom-action');
         $action = $input->getArgument('control');
 
@@ -68,15 +68,18 @@ class ActionServiceCommand extends Command
 
         $nbService = 0;
         foreach ($services as $service) {
-            if ($serviceToRegister !== self::ALL_SERVICE && $serviceToRegister !== $service['service_id']) {
-                continue;
-            }
+
             $threadNumber = $service['thread_count'];
 
             for ($i = 0; $i < $threadNumber; $i++) {
+                $serviceThreadId = sprintf($service['service_id'], $i);
+                if ($serviceToAction !== self::ALL_SERVICE && $serviceToAction !== $service['service_id'] && $serviceThreadId !== $serviceToAction) {
+                    continue;
+                }
+
                 $nbService++;
                 //Init the service informations
-                $serviceInfos = ServiceIdentifier::identify(sprintf($service['service_id'], $i), $service['machine']);
+                $serviceInfos = ServiceIdentifier::identify($serviceThreadId, $service['machine']);
 
                 try {
                     switch ($action) {
