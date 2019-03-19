@@ -101,7 +101,7 @@ class ExecuteServiceCommand extends Command
 
         $runner->defineExitModeAndCode($infos['exit']['graceful'], $infos['exit']['code']);
 
-        $runner->doRun($maxRun, $threadNumber);
+        $runner->doRun(intval($maxRun), $threadNumber);
 
     }
 
