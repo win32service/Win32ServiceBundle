@@ -25,7 +25,6 @@ class RunnerManager
     }
 
     /**
-     * @param string $alias
      * @return RunnerServiceInterface|null
      */
     public function getRunner(string $alias) {

@@ -6,6 +6,9 @@
 
 namespace Win32ServiceBundle\Command;
 
+use Exception;
+use InvalidArgumentException;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -13,18 +16,17 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Win32Service\Model\ServiceIdentifier;
 use Win32Service\Service\ServiceStateManager;
+use const atoum\atoum\phar\name;
 
+#[AsCommand(name: 'win32service:action')]
 class ActionServiceCommand extends Command
 {
-    // the name of the command (the part after "bin/console")
-    protected static $defaultName = 'win32service:action';
-
     const ALL_SERVICE = 'All';
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
-    private $config;
+    private array $config = [];
 
     protected function configure()
     {
@@ -34,19 +36,15 @@ class ActionServiceCommand extends Command
         $this->addOption('custom-action', 'c', InputOption::VALUE_REQUIRED, 'The custom control send to the service.', null);
     }
 
-    /**
-     * @param array $config
-     *
-     */
     public function defineBundleConfig(array $config) {
         $this->config = $config;
 
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if ($this->config === null) {
-            throw new \Exception('The configuration of win32Service is not defined into command');
+        if ($this->config === []) {
+            throw new Exception('The configuration of win32Service is not defined into command');
         }
 
         $serviceToAction = $input->getOption('service-name');
@@ -55,11 +53,11 @@ class ActionServiceCommand extends Command
 
         $actions = ['start', 'stop', 'pause', 'continue', 'custom'];
         if (!in_array($action, $actions)) {
-            throw new \InvalidArgumentException('The value of action argument is invalid. Valid values : '.implode(', ', $actions));
+            throw new InvalidArgumentException('The value of action argument is invalid. Valid values : '.implode(', ', $actions));
         }
 
         if ($action === 'custom' && ($customAction < 128 || $customAction > 255)) {
-            throw new \InvalidArgumentException("The custom control value must be between 128 and 255");
+            throw new InvalidArgumentException("The custom control value must be between 128 and 255");
         }
 
         $services = $this->config['services'];
@@ -102,7 +100,7 @@ class ActionServiceCommand extends Command
                             break;
                     }
                     $output->writeln('Sending control to <info>' . $serviceInfos->serviceId() . '</info> : OK');
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $output->writeln('<error> Error : ' . $serviceInfos->serviceId() . '(' . $e->getCode() . ') ' . $e->getMessage() . ' </error>');
                 }
             }
@@ -110,9 +108,10 @@ class ActionServiceCommand extends Command
 
         if ($nbService === 0) {
             $output->writeln('<info>No signal sent</info>');
-            return;
+            return self::FAILURE;
         }
 
         $output->writeln(sprintf('Signal sent to <info>%d</info> service(s)', $nbService));
+        return self::SUCCESS;
     }
 }

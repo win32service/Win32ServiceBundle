@@ -6,6 +6,8 @@
 
 namespace Win32ServiceBundle\Command;
 
+use Exception;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -14,49 +16,42 @@ use Win32Service\Model\ServiceIdentifier;
 use Win32Service\Model\ServiceInformations;
 use Win32Service\Service\ServiceAdminManager;
 
+#[AsCommand(name: 'win32service:register')]
 class RegisterServiceCommand extends Command
 {
-    // the name of the command (the part after "bin/console")
-    protected static $defaultName = 'win32service:register';
-
     const ALL_SERVICE = 'All';
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
-    private $config;
+    private array $config = [];
 
-    /**
-     * @var string
-     */
-    private $projectRoot;
+    private ?string $projectRoot = null;
 
     protected function configure()
     {
         $this->setDescription("Register all service into Windows Service Manager");
-        $this->addOption('service-name', 's', InputOption::VALUE_REQUIRED, 'Register the service with service_id. The value must be equal to the configuration.', self::ALL_SERVICE);
+        $this->addOption('service-name', 's', InputOption::VALUE_REQUIRED,
+            'Register the service with service_id. The value must be equal to the configuration.', self::ALL_SERVICE);
     }
 
-    /**
-     * @param array $config
-     *
-     */
-    public function defineBundleConfig(array $config) {
+    public function defineBundleConfig(array $config)
+    {
         $this->config = $config;
     }
 
     /**
-     * @param string $projectRoot
      * @required
      */
-    public function defineProjectRoot(string $projectRoot) {
+    public function defineProjectRoot(string $projectRoot)
+    {
         $this->projectRoot = $projectRoot;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if ($this->config === null) {
-            throw new \Exception('The configuration of win32Service is not defined into command');
+        if ($this->config === []) {
+            throw new Exception('The configuration of win32Service is not defined into command');
         }
 
         $serviceToRegister = $input->getOption('service-name');
@@ -83,7 +78,7 @@ class RegisterServiceCommand extends Command
                 if ($path === null) {
                     $path = realpath($_SERVER['PHP_SELF']);
                     //$path = sprintf('%s\\bin\\console', $this->projectRoot);
-                    $args = sprintf('%s %s %d', ExecuteServiceCommand::getDefaultName(),$serviceThreadId, $i );
+                    $args = sprintf('%s %s %d', ExecuteServiceCommand::getDefaultName(), $serviceThreadId, $i);
                 }
 
                 $serviceInfos = new ServiceInformations(
@@ -96,7 +91,7 @@ class RegisterServiceCommand extends Command
 
                 $serviceInfos->defineIfStartIsDelayed($service['delayed_start']);
 
-                $recovery=$service['recovery'];
+                $recovery = $service['recovery'];
                 $serviceInfos->defineRecoverySettings(
                     $recovery['delay'],
                     $recovery['enable'],
@@ -112,14 +107,14 @@ class RegisterServiceCommand extends Command
                     $serviceInfos->defineUserService($service['user']['account'], $service['user']['password']);
                 }
 
-                if (count($service['dependencies']) >0) {
+                if (count($service['dependencies']) > 0) {
                     $serviceInfos->defineDependencies($service['dependencies']);
                 }
 
                 try {
                     $adminService->registerService($serviceInfos);
                     $output->writeln('Registration success for <info>' . $serviceInfos->serviceId() . '</info>');
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $output->writeln('<error> Error : ' . $serviceInfos->serviceId() . '(' . $e->getCode() . ') ' . $e->getMessage() . ' </error>');
                 }
             }
@@ -127,9 +122,10 @@ class RegisterServiceCommand extends Command
 
         if ($nbService === 0) {
             $output->writeln('<info>No service registred</info>');
-            return;
+            return self::FAILURE;
         }
 
         $output->writeln(sprintf('<info>%d</info> service(s) processed', $nbService));
+        return self::SUCCESS;
     }
 }

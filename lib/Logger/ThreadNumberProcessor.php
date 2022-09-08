@@ -7,13 +7,13 @@
 namespace Win32ServiceBundle\Logger;
 
 
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class ThreadNumberProcessor
 {
-    private $threadNumber;
+    private ?int $threadNumber = null;
 
-    public function setThreadNumber(Event $evt) {
+    public function setThreadNumber(Event $evt): void {
         if (!$evt instanceof ThreadNumberEvent) {
             return;
         }
@@ -21,7 +21,7 @@ class ThreadNumberProcessor
     }
 
 
-    public function __invoke(array $record)
+    public function __invoke(array $record): array
     {
         $record['extra']['threadNumber'] = $this->threadNumber;
         return $record;

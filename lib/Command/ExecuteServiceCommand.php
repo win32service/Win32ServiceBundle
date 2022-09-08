@@ -6,6 +6,8 @@
 
 namespace Win32ServiceBundle\Command;
 
+use Exception;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -16,26 +18,19 @@ use Win32Service\Model\ServiceIdentifier;
 use Win32Service\Model\RunnerServiceInterface;
 use Win32ServiceBundle\Logger\ThreadNumberEvent;
 use Win32ServiceBundle\Service\RunnerManager;
+use const atoum\atoum\phar\name;
 
+#[AsCommand(name: 'win32service:run')]
 class ExecuteServiceCommand extends Command
 {
-    // the name of the command (the part after "bin/console")
-    protected static $defaultName = 'win32service:run';
-
     /**
-     * @var array
+     * @var array<string, mixed>
      */
-    private $config;
+    private array $config = [];
 
-    /**
-     * @var RunnerManager
-     */
-    private $service;
+    private ?RunnerManager $service = null;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private ?EventDispatcherInterface $eventDispatcher = null;
 
     protected function configure()
     {
@@ -45,10 +40,6 @@ class ExecuteServiceCommand extends Command
         $this->addOption('max-run', 'r', InputOption::VALUE_REQUIRED, 'Set the max run');
     }
 
-    /**
-     * @param array $config
-     *
-     */
     public function defineBundleConfig(array $config) {
         $this->config = $config;
 
@@ -58,20 +49,17 @@ class ExecuteServiceCommand extends Command
         $this->service = $service;
     }
 
-    /**
-     * @param EventDispatcherInterface $eventDispatcher
-     */
     public function setEventDispatcher(EventDispatcherInterface $eventDispatcher) {
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if ($this->config === null) {
-            throw new \Exception('The configuration of win32Service is not defined into command');
+        if ($this->config === []) {
+            throw new Exception('The configuration of win32Service is not defined into command');
         }
         if ($this->service === null) {
-            throw new \Exception('The service runner manager is not defined into command');
+            throw new Exception('The service runner manager is not defined into command');
         }
 
         $serviceName = $input->getArgument('service-name');
@@ -80,7 +68,7 @@ class ExecuteServiceCommand extends Command
 
         $infos=$this->getServiceInformation($serviceName, $threadNumber);
         if ($infos === null) {
-            throw new \Exception(sprintf('The information for service %s is not found', $serviceName));
+            throw new Exception(sprintf('The information for service %s is not found', $serviceName));
         }
 
         if ($maxRun === null) {
@@ -89,12 +77,12 @@ class ExecuteServiceCommand extends Command
 
         $runner = $this->service->getRunner($infos['service_id']);
         if ($runner === null) {
-            throw new \Exception(sprintf('The runner for service "%1$s" is not found. Call method \'add\' on the RunnerManager with the runner instance and the alias "%1$s".', $infos['service_id']));
+            throw new Exception(sprintf('The runner for service "%1$s" is not found. Call method \'add\' on the RunnerManager with the runner instance and the alias "%1$s".', $infos['service_id']));
         }
 
         if ($this->eventDispatcher !== null) {
             $event = new ThreadNumberEvent($threadNumber);
-            $this->eventDispatcher->dispatch(ThreadNumberEvent::NAME, $event);
+            $this->eventDispatcher->dispatch($event,ThreadNumberEvent::NAME);
         }
 
         $runner->setServiceId(ServiceIdentifier::identify($serviceName, $infos['machine']));
@@ -103,6 +91,7 @@ class ExecuteServiceCommand extends Command
 
         $runner->doRun(intval($maxRun), $threadNumber);
 
+        return self::SUCCESS;
     }
 
     private function getServiceInformation(string $serviceToRun, $threadNumber) {

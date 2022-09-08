@@ -6,6 +6,8 @@
 
 namespace Win32ServiceBundle\Command;
 
+use Exception;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -13,37 +15,33 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Win32Service\Model\ServiceIdentifier;
 use Win32Service\Service\ServiceAdminManager;
 
+#[AsCommand(name: 'win32service:unregister')]
 class UnregisterServiceCommand extends Command
 {
-    // the name of the command (the part after "bin/console")
-    protected static $defaultName = 'win32service:unregister';
-
     const ALL_SERVICE = 'All';
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
-    private $config;
+    private array $config = [];
 
     protected function configure()
     {
         $this->setDescription("Unregister all service into Windows Service Manager");
-        $this->addOption('service-name', 's', InputOption::VALUE_REQUIRED, 'Register the service with service_id. The value must be equal to the configuration.', self::ALL_SERVICE);
+        $this->addOption('service-name', 's', InputOption::VALUE_REQUIRED,
+            'Register the service with service_id. The value must be equal to the configuration.', self::ALL_SERVICE);
     }
 
-    /**
-     * @param array $config
-     *
-     */
-    public function defineBundleConfig(array $config) {
+    public function defineBundleConfig(array $config)
+    {
         $this->config = $config;
 
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if ($this->config === null) {
-            throw new \Exception('The configuration of win32Service is not defined into command');
+        if ($this->config === []) {
+            throw new Exception('The configuration of win32Service is not defined into command');
         }
 
         $serviceToRegister = $input->getOption('service-name');
@@ -67,7 +65,7 @@ class UnregisterServiceCommand extends Command
                 try {
                     $adminService->unregisterService($serviceInfos);
                     $output->writeln('Unregistration success for <info>' . $serviceInfos->serviceId() . '</info>');
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $output->writeln('<error> Error : ' . $serviceInfos->serviceId() . '(' . $e->getCode() . ') ' . $e->getMessage() . ' </error>');
                 }
             }
@@ -75,9 +73,10 @@ class UnregisterServiceCommand extends Command
 
         if ($nbService === 0) {
             $output->writeln('<info>No service unregistred</info>');
-            return;
+            return self::FAILURE;
         }
 
         $output->writeln(sprintf('<info>%d</info> service(s) processed', $nbService));
+        return self::SUCCESS;
     }
 }
