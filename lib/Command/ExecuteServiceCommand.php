@@ -89,7 +89,7 @@ class ExecuteServiceCommand extends Command
 
         $runner = $this->service->getRunner($infos['service_id']);
         if ($runner === null) {
-            throw new \Exception(sprintf('The runner for service "%1$s" is not found. Add tag "win32service.runner" with alias "%1$s" at the service runner service', $infos['service_id']));
+            throw new \Exception(sprintf('The runner for service "%1$s" is not found. Call method \'add\' on the RunnerManager with the runner instance and the alias "%1$s".', $infos['service_id']));
         }
 
         if ($this->eventDispatcher !== null) {
