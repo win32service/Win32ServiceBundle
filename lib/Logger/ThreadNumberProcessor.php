@@ -8,6 +8,7 @@ namespace Win32ServiceBundle\Logger;
 
 
 use Symfony\Contracts\EventDispatcher\Event;
+use Monolog\LogRecord;
 
 class ThreadNumberProcessor
 {
@@ -21,8 +22,12 @@ class ThreadNumberProcessor
     }
 
 
-    public function __invoke(array $record): array
+    public function __invoke(array|LogRecord $record): array|LogRecord
     {
+        if ($record instanceof LogRecord) {
+            $record->extra['threadNumber'] = $this->threadNumber;
+            return $record;
+        }
         $record['extra']['threadNumber'] = $this->threadNumber;
         return $record;
     }
