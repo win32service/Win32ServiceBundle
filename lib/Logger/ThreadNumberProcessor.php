@@ -22,9 +22,13 @@ class ThreadNumberProcessor
     }
 
 
-    public function __invoke(LogRecord $record): LogRecord
+    public function __invoke(array|LogRecord $record): array|LogRecord
     {
-        $record->extra['threadNumber'] = $this->threadNumber;
+        if ($record instanceof LogRecord) {
+            $record->extra['threadNumber'] = $this->threadNumber;
+            return $record;
+        }
+        $record['extra']['threadNumber'] = $this->threadNumber;
         return $record;
     }
 
