@@ -6,7 +6,7 @@ services:
 
   Win32ServiceBundle\:
     resource: '../../*'
-    exclude: '../../{DependencyInjection,Entity,Logger,Migrations,Model,Tests,Win32ServiceBundle.php}'
+    exclude: '../../{DependencyInjection,Entity,Logger,MessengerSubscriber,Migrations,Model,Tests,Win32ServiceBundle.php}'
 
   Win32ServiceBundle\Service\ServiceConfigurationManager:
     arguments:

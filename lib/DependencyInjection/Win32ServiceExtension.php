@@ -80,6 +80,7 @@ class Win32ServiceExtension extends Extension
                 new AbstractArgument('Routable message bus'),
                 new Reference('messenger.receiver_locator'),
                 new Reference('event_dispatcher'),
+                new Reference('messenger.bus.default'),
                 new Reference('logger', ContainerInterface::NULL_ON_INVALID_REFERENCE),
                 [],
                 new Reference('messenger.listener.reset_services', ContainerInterface::NULL_ON_INVALID_REFERENCE),
@@ -94,7 +95,6 @@ class Win32ServiceExtension extends Extension
 
     private function processMessengerConfig(array $config): array
     {
-        // todo: ajouter dans les services les services messenger pour qu'ils soit utilisable avec les autres commandes
         foreach ($config['messenger'] as $service) {
             $config['services'][] = [
                 'machine' => $service['machine'],
