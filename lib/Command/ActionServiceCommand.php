@@ -66,7 +66,7 @@ class ActionServiceCommand extends Command
         }
 
         if ($serviceToAction !== self::ALL_SERVICE) {
-            $serviceInfos = $this->serviceConfigurationManager->getServiceConfiguration($serviceToAction);
+            $serviceInfos = $this->serviceConfigurationManager->getServiceInformations($serviceToAction);
 
             $this->sendAction($adminService, $action, $serviceInfos, $customAction);
             $output->writeln('Sending control to <info>'.$serviceInfos->serviceId().'</info> : OK');

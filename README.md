@@ -20,6 +20,7 @@ win32_service:
         channels: # The list of channels whom the processor add the thread number. If empty, the thread number is added for all channels.
          - ref1
     services:
+      # Prototype
       -
         service_id: "" # The service id. If `thread_count` > 1, you can use `%d` to define the place of the thread number
         machine: "" # the machine name for this service. 
@@ -47,6 +48,22 @@ win32_service:
           reset_period: 86400 # The period before reset the fail count (in minutes)
         dependencies: # The list of service depends
           - Netman # An example of dependency.
+ 
+    messenger: # This configuration allow to set on Windows service the Symfony Messenger Consumer.
+      # Prototype
+      -
+        user: # The User set on the service
+          account:            ~ # the account name
+          password:           ~ # the password
+        receivers:            [] # Symfony Messenger transport consumed by the service
+        machine:              '' # the machine name for this service. 
+        displayed_name:       ~ # Required, The friendly name of the service. If `thread_count` > 1, you can use `%d` to define the place of the thread number
+        description:          '' # the service description
+        thread_count:         1 # the number of this service need to register. Use `%d` into `service_id`, `displayed_name` and `script_params` for contains the service number.
+        delayed_start:        false # If true the starting for the service is delayed
+        limit:                0 # Reboot service after processed X messages
+        failure-limit:        0 # Reboot service after X messages failure
+        time-limit:           0 # Reboot service after X seconds
 ```
 
 # Define the runner

@@ -45,7 +45,7 @@ class RegisterServiceCommand extends Command
         $serviceToRegister = $input->getOption('service-name');
 
         if ($serviceToRegister !== self::ALL_SERVICE) {
-            $serviceInfos = $this->serviceConfigurationManager->getServiceConfiguration($serviceToRegister);
+            $serviceInfos = $this->serviceConfigurationManager->getServiceInformations($serviceToRegister);
 
             $adminService->registerService($serviceInfos);
             $output->writeln('Registration success for <info>'.$serviceInfos->serviceId().'</info>');

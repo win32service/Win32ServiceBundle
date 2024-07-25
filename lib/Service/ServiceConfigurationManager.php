@@ -55,11 +55,20 @@ final class ServiceConfigurationManager
     public function getFullServiceList(): \Generator
     {
         foreach ($this->serviceIds as $serviceId => $service) {
-            yield $this->getServiceConfiguration($serviceId);
+            yield $this->getServiceInformations($serviceId);
         }
     }
 
-    public function getServiceConfiguration(string $serviceId): ServiceInformations
+    public function getServiceRawConfiguration(string $serviceId): array
+    {
+        if (isset($this->serviceIds[$serviceId]) === false) {
+            throw new \Win32ServiceException(sprintf('The Win32Service "%s" is not defined.', $serviceId));
+        }
+
+        return $this->serviceIds[$serviceId];
+    }
+
+    public function getServiceInformations(string $serviceId): ServiceInformations
     {
         if (isset($this->serviceIds[$serviceId]) === false) {
             throw new \Win32ServiceException(sprintf('The Win32Service "%s" is not defined.', $serviceId));
@@ -76,7 +85,6 @@ final class ServiceConfigurationManager
         );
 
         $serviceInfos->defineIfStartIsDelayed($service['delayed_start']);
-
         $recovery = $service['recovery'];
         $serviceInfos->defineRecoverySettings(
             $recovery['delay'],

@@ -1,0 +1,13 @@
+services:
+  db:
+    image: mariadb:10.11
+    environment:
+      MYSQL_DATABASE: app
+      MYSQL_ROOT_PASSWORD: nopassword
+      MYSQL_USER: user
+      MYSQL_PASSWORD: nopassword
+    volumes:
+      - win32service_bundle_mariadb_data:/var/lib/mysql
+
+volumes:
+  win32service_bundle_mariadb_data: ~

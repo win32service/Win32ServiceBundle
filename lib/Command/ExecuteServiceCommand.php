@@ -42,10 +42,10 @@ class ExecuteServiceCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $serviceName = $input->getArgument('service-name');
-        $threadNumber = $input->getArgument('thread');
+        $threadNumber = (int) $input->getArgument('thread') ?? 1;
         $maxRun = $input->getOption('max-run');
 
-        $infos = $this->serviceConfigurationManager->getServiceConfiguration($serviceName);
+        $infos = $this->serviceConfigurationManager->getServiceInformations($serviceName);
 
         if ($maxRun === null) {
             $maxRun = -1;
@@ -53,7 +53,7 @@ class ExecuteServiceCommand extends Command
 
         $runner = $this->service->getRunner($this->serviceConfigurationManager->getRunnerAliasForServiceId($serviceName));
         if ($runner === null) {
-            throw new \Exception(sprintf('The runner for service "%1$s" is not found. Call method \'add\' on the RunnerManager with the runner instance and the alias "%1$s".', $infos['service_id']));
+            throw new \Win32ServiceException(sprintf('The runner for service "%1$s" is not found. Call method \'add\' on the RunnerManager with the runner instance and the alias "%1$s".', $infos['service_id']));
         }
 
         if ($this->eventDispatcher !== null) {
@@ -62,8 +62,8 @@ class ExecuteServiceCommand extends Command
         }
 
         $runner->setServiceId(ServiceIdentifier::identify($serviceName, $infos->machine()));
-
-        $runner->defineExitModeAndCode($infos['exit']['graceful'], $infos['exit']['code']);
+        $rawConfig = $this->serviceConfigurationManager->getServiceRawConfiguration($serviceName);
+        $runner->defineExitModeAndCode($rawConfig['exit']['graceful'], $rawConfig['exit']['code']);
 
         $runner->doRun((int) $maxRun, $threadNumber);
 

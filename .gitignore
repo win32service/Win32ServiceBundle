@@ -1,5 +1,5 @@
 /composer.lock
-
+compose.override.yaml
 /.php-cs-fixer.cache
 
 ###> symfony/framework-bundle ###

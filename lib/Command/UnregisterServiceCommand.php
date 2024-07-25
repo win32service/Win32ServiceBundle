@@ -44,7 +44,7 @@ class UnregisterServiceCommand extends Command
         $adminService = new ServiceAdminManager();
 
         if ($serviceToUnregister !== self::ALL_SERVICE) {
-            $serviceInfos = $this->serviceConfigurationManager->getServiceConfiguration($serviceToUnregister);
+            $serviceInfos = $this->serviceConfigurationManager->getServiceInformations($serviceToUnregister);
 
             $adminService->unregisterService($serviceInfos);
             $output->writeln('Unregistration success for <info>'.$serviceInfos->serviceId().'</info>');
