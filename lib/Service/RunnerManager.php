@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * @copyright Macintoshplus (c) 2019
  * Added by : Macintoshplus at 19/02/19 23:06
@@ -13,25 +15,21 @@ class RunnerManager
     /**
      * @var RunnerServiceInterface[]
      */
-    private $runner;
+    private array $runner = [];
 
-    public function __construct()
+    public function addRunner(RunnerServiceInterface $runner, string $alias): void
     {
-        $this->runner = [];
-    }
-
-    public function addRunner(RunnerServiceInterface $runner, string $alias) {
         $this->runner[$alias] = $runner;
     }
 
-    /**
-     * @return RunnerServiceInterface|null
-     */
-    public function getRunner(string $alias) {
-        if (!isset($this->runner[$alias])) {
-            return null;
-        }
+    public function getRunner(string $alias): ?RunnerServiceInterface
+    {
+        return $this->runner[$alias] ?? null;
+    }
 
-        return $this->runner[$alias];
+    /** @return array<string, RunnerServiceInterface> */
+    public function getRunners(): array
+    {
+        return $this->runner;
     }
 }
