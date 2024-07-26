@@ -11,3 +11,4 @@ services:
   Win32ServiceBundle\Service\ServiceConfigurationManager:
     arguments:
       - '%win32service.config%'
+      - '%kernel.environment%'
