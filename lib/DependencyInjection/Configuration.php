@@ -20,6 +20,13 @@ class Configuration implements ConfigurationInterface
         $treeBuilder->getRootNode()
             ->children()
                 ->scalarNode('windows_local_encoding')->defaultValue('ISO-8859-15')->end()
+                ->scalarNode('project_code')->isRequired()->cannotBeEmpty()->info('Project specific code to distinguish service ID')
+                    ->validate()
+                        ->ifTrue(function ($value) {
+                            return \is_string($value) === false || \strlen($value) > 5 || \strlen($value) < 2;
+                        })->thenInvalid('Invalid project code (string length between 2 and 5 chars)')
+                    ->end()
+                ->end()
                 ->arrayNode('logging_extra')
                     ->addDefaultsIfNotSet()
                     ->children()

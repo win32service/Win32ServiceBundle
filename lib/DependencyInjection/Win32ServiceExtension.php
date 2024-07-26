@@ -22,7 +22,7 @@ use Win32ServiceBundle\Model\MessengerServiceRunner;
 
 class Win32ServiceExtension extends Extension
 {
-    public function load(array $configs, ContainerBuilder $container)
+    public function load(array $configs, ContainerBuilder $container): void
     {
         $configuration = new Configuration();
 
@@ -30,7 +30,7 @@ class Win32ServiceExtension extends Extension
         $config = $this->processMessengerConfig($config);
         $container->setParameter('win32service.config', $config);
 
-        $this->processMessenger($config['messenger'], $container);
+        $this->processMessenger($config['messenger'], $config['project_code'], $container);
 
         $loader = new YamlFileLoader($container, new FileLocator(\dirname(__DIR__).'/Resources/config'));
         $loader->load('services.yaml');
@@ -71,10 +71,14 @@ class Win32ServiceExtension extends Extension
         $definition->addTag('monolog.processor');
     }
 
-    public function processMessenger(array $messengerConfig, ContainerBuilder $container): void
+    public function processMessenger(array $messengerConfig, string $projectCode, ContainerBuilder $container): void
     {
         foreach ($messengerConfig as $service) {
-            $name = sprintf(MessengerServiceRunner::SERVICE_TAG_PATTERN, implode('_', $service['receivers']));
+            $name = sprintf(
+                MessengerServiceRunner::SERVICE_TAG_PATTERN,
+                $projectCode,
+                implode('_', $service['receivers'])
+            );
             $arguments = [
                 $service,
                 new AbstractArgument('Routable message bus'),
@@ -96,6 +100,15 @@ class Win32ServiceExtension extends Extension
     private function processMessengerConfig(array $config): array
     {
         foreach ($config['messenger'] as $service) {
+            $strlen = \strlen((string) ($service['thread_count'] - 1)) - 2;
+            $templatedName = sprintf(
+                MessengerServiceRunner::SERVICE_TAG_PATTERN,
+                $config['project_code'],
+                implode('_', $service['receivers'])
+            );
+            if (($totalLength = $strlen + \strlen($templatedName)) > 80) {
+                throw new \Win32ServiceException(sprintf('The future service identity length "%s" is over 80 chars (%d). Reduce the project code or "receivers" number or name length to keep less than 80 chars.', sprintf($templatedName, $service['thread_count'] - 1), $totalLength));
+            }
             $config['services'][] = [
                 'machine' => $service['machine'],
                 'displayed_name' => $service['displayed_name'],
@@ -105,7 +118,7 @@ class Win32ServiceExtension extends Extension
                 'thread_count' => $service['thread_count'],
                 'script_path' => null,
                 'script_params' => '',
-                'service_id' => sprintf(MessengerServiceRunner::SERVICE_TAG_PATTERN, implode('_', $service['receivers'])),
+                'service_id' => $templatedName,
                 'recovery' => [
                     'enable' => true,
                     'delay' => 100,
