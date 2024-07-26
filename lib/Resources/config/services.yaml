@@ -3,29 +3,11 @@ services:
   _defaults:
     autowire: true      # Automatically injects dependencies in your services.
     autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
-    bind:
-      $projectRoot: '%kernel.project_dir%'
 
   Win32ServiceBundle\:
     resource: '../../*'
-    exclude: '../../{DependencyInjection,Entity,Logger,Migrations,Model,Tests,Win32ServiceBundle.php}'
+    exclude: '../../{DependencyInjection,Entity,Logger,MessengerSubscriber,Migrations,Model,Tests,Win32ServiceBundle.php}'
 
-
-  Win32ServiceBundle\Command\RegisterServiceCommand:
-    autowire: true
-    calls:
-      - ['defineBundleConfig', ['%win32service.config%']]
-  Win32ServiceBundle\Command\UnregisterServiceCommand:
-    autowire: true
-    calls:
-      - ['defineBundleConfig', ['%win32service.config%']]
-  Win32ServiceBundle\Command\ActionServiceCommand:
-    autowire: true
-    calls:
-      - ['defineBundleConfig', ['%win32service.config%']]
-  Win32ServiceBundle\Command\ExecuteServiceCommand:
-    autowire: true
-    calls:
-      - ['defineBundleConfig', ['%win32service.config%']]
-      - ['setService', ['@Win32ServiceBundle\Service\RunnerManager']]
-      - ['setEventDispatcher', ['@event_dispatcher']]
+  Win32ServiceBundle\Service\ServiceConfigurationManager:
+    arguments:
+      - '%win32service.config%'

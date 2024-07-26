@@ -1,4 +1,18 @@
-/vendor
 /composer.lock
-
+compose.override.yaml
 /.php-cs-fixer.cache
+
+###> symfony/framework-bundle ###
+/.env.local
+/tests/Application/.env.local
+/.env.local.php
+/tests/Application/.env.local.php
+/.env.*.local
+/tests/Application/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/tests/Application/public/bundles/
+/var/
+/tests/Application/var
+/vendor/
+###< symfony/framework-bundle ###
