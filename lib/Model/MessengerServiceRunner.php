@@ -33,7 +33,7 @@ use Win32ServiceBundle\MessengerSubscriber\StopWorkerOnTimeLimitListener;
 
 final class MessengerServiceRunner extends AbstractServiceRunner
 {
-    public const SERVICE_TAG_PATTERN = 'win32service.messenger.%s.%%s';
+    public const SERVICE_TAG_PATTERN = 'win32service.%s.messenger.%s.%%s';
     /**
      * @var array<string, ReceiverInterface>
      */

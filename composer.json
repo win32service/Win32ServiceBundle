@@ -46,6 +46,9 @@
     "doctrine/doctrine-migrations-bundle": "^3.3",
     "doctrine/orm": "^2.19"
   },
+  "suggest": {
+    "ext-win32service": "On Windows only, install this extension to run PHP Service on Windows Service Manager"
+  },
   "extra": {
     "symfony": {
       "allow-contrib": false,

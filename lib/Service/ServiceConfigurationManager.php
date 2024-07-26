@@ -13,7 +13,7 @@ final class ServiceConfigurationManager
     private array $serviceIds = [];
     private array $serviceIdsToRunnerAlias = [];
 
-    public function __construct(private array $configuration)
+    public function __construct(private array $configuration, string $environment)
     {
         if ($configuration === []) {
             throw new \Win32ServiceException('The configuration of win32Service is not defined');
@@ -35,7 +35,7 @@ final class ServiceConfigurationManager
 
                 if ($scriptPath === null) {
                     $path = realpath($_SERVER['PHP_SELF']);
-                    $args = sprintf('%s %s %d', ExecuteServiceCommand::getDefaultName(), $serviceThreadId, $i);
+                    $args = sprintf('-e %s %s %s %d', $environment, ExecuteServiceCommand::getDefaultName(), $serviceThreadId, $i);
                 }
 
                 $service['service_id'] = $serviceThreadId;
