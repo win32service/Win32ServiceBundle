@@ -28,7 +28,7 @@ class ActionServiceCommand extends Command
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->setDescription('Send the action at all service');
         $this->addArgument('control', InputArgument::REQUIRED, 'The action you want');
@@ -100,7 +100,7 @@ class ActionServiceCommand extends Command
         ServiceStateManager $adminService,
         string $action,
         ServiceInformations $serviceInfos,
-        int $customAction
+        ?int $customAction
     ): void {
         switch ($action) {
             case 'start':

@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace Win32ServiceBundle\Command;
 
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -26,7 +27,8 @@ class ExecuteServiceCommand extends Command
     public function __construct(
         private ServiceConfigurationManager $serviceConfigurationManager,
         private RunnerManager $service,
-        private ?EventDispatcherInterface $eventDispatcher = null
+        private ?EventDispatcherInterface $eventDispatcher = null,
+        private ?LoggerInterface $logger = null
     ) {
         parent::__construct();
     }
@@ -63,6 +65,10 @@ class ExecuteServiceCommand extends Command
 
         $runner->setServiceId(ServiceIdentifier::identify($serviceName, $infos->machine()));
         $rawConfig = $this->serviceConfigurationManager->getServiceRawConfiguration($serviceName);
+        $this->logger?->info(
+            'Configure exit graceful and code',
+            ['exit_graceful' => $rawConfig['exit']['graceful'], 'exit_code' => $rawConfig['exit']['code']]
+        );
         $runner->defineExitModeAndCode($rawConfig['exit']['graceful'], $rawConfig['exit']['code']);
 
         $runner->doRun((int) $maxRun, $threadNumber);
