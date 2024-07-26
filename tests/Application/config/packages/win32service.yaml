@@ -4,6 +4,6 @@ win32_service:
     -
       receivers: [async]
       limit: 10
-      displayed_name: Demo Messenger Consumer Async
+      displayed_name: Demo Messenger Consumer Async %d
       thread_count: 2
 
