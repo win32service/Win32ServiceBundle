@@ -121,7 +121,7 @@ class Win32ServiceExtension extends Extension
                 'service_id' => $templatedName,
                 'recovery' => [
                     'enable' => true,
-                    'delay' => 100,
+                    'delay' => 60_000,
                     'action1' => WIN32_SC_ACTION_RESTART,
                     'action2' => WIN32_SC_ACTION_RESTART,
                     'action3' => WIN32_SC_ACTION_RESTART,

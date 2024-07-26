@@ -59,6 +59,8 @@ final class MessengerServiceRunner extends AbstractServiceRunner
 
     protected function setup(): void
     {
+        $this->config['sleep'] = $this->config['sleep'] ?? 1000000;
+
         $this->eventDispatcher->addSubscriber($this->resetServicesListener);
         $limit = (int) $this->config['limit'];
         if ($limit > 0) {
@@ -102,6 +104,8 @@ final class MessengerServiceRunner extends AbstractServiceRunner
         }
 
         $this->shouldStop = true;
+        $this->requestStop();
+        throw new \RuntimeException('Stop requested');
     }
 
     protected function beforeContinue(): void
@@ -119,6 +123,7 @@ final class MessengerServiceRunner extends AbstractServiceRunner
         $this->eventDispatcher->dispatch(new MessengerWorkerStartedEvent($this));
 
         $envelopeHandled = false;
+        $envelopeHandledStart = microtime(true);
         foreach ($this->receivers as $transportName => $receiver) {
             $envelopes = $receiver->get();
 
@@ -143,6 +148,10 @@ final class MessengerServiceRunner extends AbstractServiceRunner
 
         if (!$envelopeHandled) {
             $this->eventDispatcher->dispatch(new MessengerWorkerRunningEvent($this, true));
+
+            if (0 < $sleep = (int) ($this->config['sleep'] - 1e6 * (microtime(true) - $envelopeHandledStart))) {
+                usleep($sleep);
+            }
         }
     }
 
