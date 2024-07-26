@@ -24,11 +24,13 @@ final class ServiceConfigurationManager
         foreach ($services as $service) {
             $threadNumber = $service['thread_count'];
             $runnerAlias = $service['service_id'];
+            $runnerName = $service['displayed_name'];
             $scriptParams = $service['script_params'];
             $scriptPath = $service['script_path'];
 
             for ($i = 0; $i < $threadNumber; ++$i) {
                 $serviceThreadId = sprintf($runnerAlias, $i);
+                $runnerNameId = sprintf($runnerName, $i);
 
                 $path = $service['script_path'];
                 $args = sprintf($scriptParams, $i);
@@ -39,6 +41,7 @@ final class ServiceConfigurationManager
                 }
 
                 $service['service_id'] = $serviceThreadId;
+                $service['displayed_name'] = $runnerNameId;
                 $service['script_path'] = $path;
                 $service['script_params'] = $args;
 
