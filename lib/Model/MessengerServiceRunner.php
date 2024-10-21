@@ -52,7 +52,7 @@ final class MessengerServiceRunner extends AbstractServiceRunner
         private ?LoggerInterface $logger = null,
         private array $receiverNames = [],
         private ?ResetServicesListener $resetServicesListener = null,
-        private array $busIds = []
+        private array $busIds = [],
     ) {
         $this->unacks = new \SplObjectStorage();
     }
@@ -66,15 +66,15 @@ final class MessengerServiceRunner extends AbstractServiceRunner
         if ($limit > 0) {
             $this->eventDispatcher->addSubscriber(new StopWorkerOnMessageLimitListener($limit, $this->logger));
         }
-        $failureLimit = (int) $this->config['failure-limit'];
+        $failureLimit = (int) $this->config['failure_limit'];
         if ($failureLimit > 0) {
             $this->eventDispatcher->addSubscriber(new StopWorkerOnFailureLimitListener($failureLimit, $this->logger));
         }
-        $timeLimit = (int) $this->config['time-limit'];
+        $timeLimit = (int) $this->config['time_limit'];
         if ($timeLimit > 0) {
             $this->eventDispatcher->addSubscriber(new StopWorkerOnTimeLimitListener($timeLimit, $this->logger));
         }
-        $memoryLimit = (string) $this->config['memory-limit'];
+        $memoryLimit = (string) $this->config['memory_limit'];
         if ($memoryLimit > 0) {
             $this->eventDispatcher->addSubscriber(new StopWorkerOnMemoryLimitListener(
                 $this->convertToBytes($memoryLimit),
@@ -85,9 +85,9 @@ final class MessengerServiceRunner extends AbstractServiceRunner
         $this->receivers = [];
         foreach ($this->config['receivers'] as $receiverName) {
             if (!$this->receiverLocator->has($receiverName)) {
-                $message = sprintf('The receiver "%s" does not exist.', $receiverName);
+                $message = \sprintf('The receiver "%s" does not exist.', $receiverName);
                 if ($this->receiverNames) {
-                    $message .= sprintf(' Valid receivers are: %s.', implode(', ', $this->receiverNames));
+                    $message .= \sprintf(' Valid receivers are: %s.', implode(', ', $this->receiverNames));
                 }
 
                 throw new RuntimeException($message);

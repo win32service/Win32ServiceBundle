@@ -6,4 +6,5 @@ win32_service:
       limit: 10
       displayed_name: Demo Messenger Consumer Async %d
       thread_count: 2
+      memory_limit: 3600
 
