@@ -52,7 +52,7 @@ final class MessengerServiceRunner extends AbstractServiceRunner
         private ?LoggerInterface $logger = null,
         private array $receiverNames = [],
         private ?ResetServicesListener $resetServicesListener = null,
-        private array $busIds = []
+        private array $busIds = [],
     ) {
         $this->unacks = new \SplObjectStorage();
     }
@@ -85,9 +85,9 @@ final class MessengerServiceRunner extends AbstractServiceRunner
         $this->receivers = [];
         foreach ($this->config['receivers'] as $receiverName) {
             if (!$this->receiverLocator->has($receiverName)) {
-                $message = sprintf('The receiver "%s" does not exist.', $receiverName);
+                $message = \sprintf('The receiver "%s" does not exist.', $receiverName);
                 if ($this->receiverNames) {
-                    $message .= sprintf(' Valid receivers are: %s.', implode(', ', $this->receiverNames));
+                    $message .= \sprintf(' Valid receivers are: %s.', implode(', ', $this->receiverNames));
                 }
 
                 throw new RuntimeException($message);
@@ -105,7 +105,6 @@ final class MessengerServiceRunner extends AbstractServiceRunner
 
         $this->shouldStop = true;
         $this->requestStop();
-        throw new \RuntimeException('Stop requested');
     }
 
     protected function beforeContinue(): void
