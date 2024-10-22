@@ -49,6 +49,6 @@ jobs:
       - name: Execute tests (Unit and Feature tests) via PHPUnit
         env:
           DATABASE_URL: sqlite:///%kernel.project_dir%/data/database.sqlite
-        run: | 
-          bin/console doctrine:schema:update --force --complete
+        run: |
+          tests/Application/bin/console doctrine:schema:update --force --complete
           vendor/bin/phpunit 
