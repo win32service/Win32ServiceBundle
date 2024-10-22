@@ -29,14 +29,14 @@ jobs:
         env:
           MYSQL_USER: user
           MYSQL_PASSWORD: nopassword
-          MYSQL_DATABASE: app
+          MYSQL_DATABASE: app_test
           MYSQL_ROOT_PASSWORD: nopassword
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
 
     env:
       DATABASE_URL: mysql://root:nopassword@127.0.0.1:3306/app?serverVersion=mariadb-10.11.2&charset=utf8mb4
-
+      APP_ENV: test
     steps:
       #  To automatically get bug fixes and new Php versions for shivammathur/setup-php,
       # change this to (see https://github.com/shivammathur/setup-php#bookmark-versioning):
