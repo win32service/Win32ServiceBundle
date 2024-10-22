@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+/**
+ * Mock for service library abstact.
+ */
+
 namespace Win32Service\Model;
 
 function win32_start_service_ctrl_dispatcher(string $serviceName): bool
@@ -36,6 +40,11 @@ class Win32serviceState
         }
 
         return self::$instance;
+    }
+
+    public static function reset(): void
+    {
+        self::$instance = null;
     }
 
     public function setServiceName(string $serviceName): bool
