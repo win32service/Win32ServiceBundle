@@ -44,7 +44,8 @@
     "symfony/monolog-bundle": "^3.10",
     "doctrine/doctrine-bundle": "^2.12",
     "doctrine/doctrine-migrations-bundle": "^3.3",
-    "doctrine/orm": "^2.19"
+    "doctrine/orm": "^2.19",
+    "phpunit/phpunit": "^9.6"
   },
   "suggest": {
     "ext-win32service": "On Windows only, install this extension to run PHP Service on Windows Service Manager"
