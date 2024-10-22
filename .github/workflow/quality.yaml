@@ -7,7 +7,7 @@ name: Quality
 
 on:
   push:
-    branches: [ "2.x" ]
+    branches: [ "2.x", "issue_17_failed_message_never_retried" ]
   pull_request:
     branches: [ "2.x" ]
 
