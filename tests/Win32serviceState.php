@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Win32Service\Model;
+namespace Win32ServiceBundle\Model;
 
 function win32_start_service_ctrl_dispatcher(string $serviceName): bool
 {
@@ -19,7 +19,7 @@ function win32_get_last_control_message(): int
     return Win32serviceState::getInstance()->getLastControlMessage();
 }
 
-class win32service_mock_function
+class Win32serviceState
 {
     private static ?self $instance = null;
 

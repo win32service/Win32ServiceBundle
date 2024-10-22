@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Win32ServiceBundle\Tests\Unit\MessengerIntegration;
 
-require_once \dirname(__DIR__, 2).'/win32service_mock_function.php';
+require_once \dirname(__DIR__, 2).'/Win32serviceState.php';
 
 use Doctrine\DBAL\Driver\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
