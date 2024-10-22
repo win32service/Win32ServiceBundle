@@ -34,7 +34,7 @@ jobs:
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
 
-    environment:
+    env:
       DATABASE_URL: mysql://root:nopassword@127.0.0.1:3306/app?serverVersion=mariadb-10.11.2&charset=utf8mb4
 
     steps:
