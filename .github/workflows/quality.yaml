@@ -16,8 +16,9 @@ permissions:
 
 jobs:
   symfony-tests:
-    matrix:
-      php: [8.0, 8.1, 8.2, 8.3]
+    strategy:
+      matrix:
+        php: [8.0, 8.1, 8.2, 8.3]
     runs-on: ubuntu-latest
     steps:
       #  To automatically get bug fixes and new Php versions for shivammathur/setup-php,
