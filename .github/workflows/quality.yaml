@@ -20,6 +20,23 @@ jobs:
       matrix:
         php: ['8.0', '8.1', '8.2', '8.3']
     runs-on: ubuntu-latest
+
+    services:
+      mariadb:
+        image: mariadb:10.11
+        ports:
+          - 3306
+        env:
+          MYSQL_USER: user
+          MYSQL_PASSWORD: nopassword
+          MYSQL_DATABASE: app
+          MYSQL_ROOT_PASSWORD: nopassword
+        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+
+
+    environment:
+      DATABASE_URL: mysql://root:nopassword@127.0.0.1:3306/app?serverVersion=mariadb-10.11.2&charset=utf8mb4
+
     steps:
       #  To automatically get bug fixes and new Php versions for shivammathur/setup-php,
       # change this to (see https://github.com/shivammathur/setup-php#bookmark-versioning):
@@ -44,11 +61,7 @@ jobs:
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
       - name: Create Database
         run: |
-          mkdir -p tests/Application/data
-          touch tests/Application/data/database.sqlite
+          cd tests/Application
+          bin/console doctrine:migration:migrate -n
       - name: Execute tests (Unit and Feature tests) via PHPUnit
-        env:
-          DATABASE_URL: sqlite:///%kernel.project_dir%/data/database.sqlite
-        run: |
-          tests/Application/bin/console doctrine:schema:update --force --complete
-          vendor/bin/phpunit 
+        run: vendor/bin/phpunit
