@@ -8,6 +8,8 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Exception\OutOfBoundsException;
 use Symfony\Component\DependencyInjection\Reference;
+use Win32ServiceBundle\MessengerSubscriber\SendFailedMessageForRetryListener;
+use Win32ServiceBundle\MessengerSubscriber\SendFailedMessageToFailureTransportListener;
 
 final class MessengerPass implements CompilerPassInterface
 {
@@ -16,6 +18,13 @@ final class MessengerPass implements CompilerPassInterface
     private string $win32ServiceRunnerTag = TagRunnerCompilerPass::WIN32SERVICE_RUNNER_TAG.'.messenger';
 
     public function process(ContainerBuilder $container): void
+    {
+        $this->processService($container);
+        $this->processRetryConfig($container);
+        $this->processFailledConfig($container);
+    }
+
+    private function processService(ContainerBuilder $container): void
     {
         $busIds = [];
         foreach ($container->findTaggedServiceIds($this->busTag) as $busId => $tags) {
@@ -50,5 +59,35 @@ final class MessengerPass implements CompilerPassInterface
                 // ignore to preserve compatibility with symfony/framework-bundle < 5.4
             }
         }
+    }
+
+    private function processFailledConfig(ContainerBuilder $container): void
+    {
+        if (
+            $container->hasDefinition('messenger.failure.send_failed_message_to_failure_transport_listener') === false
+            || $container->hasDefinition(SendFailedMessageToFailureTransportListener::class) === false
+        ) {
+            return;
+        }
+
+        $serviceSF = $container->findDefinition('messenger.failure.send_failed_message_to_failure_transport_listener');
+
+        $serviceWin32 = $container->findDefinition(SendFailedMessageToFailureTransportListener::class);
+        $serviceWin32->replaceArgument('$failureSenders', $serviceSF->getArgument(0));
+    }
+
+    private function processRetryConfig(ContainerBuilder $container): void
+    {
+        if (
+            $container->hasDefinition('messenger.retry.send_failed_message_for_retry_listener') === false
+            || $container->hasDefinition(SendFailedMessageForRetryListener::class) === false
+        ) {
+            return;
+        }
+
+        $serviceSF = $container->findDefinition('messenger.retry.send_failed_message_for_retry_listener');
+
+        $serviceWin32 = $container->findDefinition(SendFailedMessageForRetryListener::class);
+        $serviceWin32->replaceArgument('$sendersLocator', $serviceSF->getArgument(0));
     }
 }

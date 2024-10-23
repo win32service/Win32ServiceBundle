@@ -16,3 +16,6 @@ framework:
     # Route your messages to the transports
     # 'App\Message\YourMessage': async
       'Win32ServiceBundle\Tests\Application\Event\TestMessage': async
+      'Win32ServiceBundle\Tests\Application\Event\TestRetryMessage': async
+      'Win32ServiceBundle\Tests\Application\Event\TestMemoryLimitMessage': async
+      'Win32ServiceBundle\Tests\Application\Event\TestTimeLimitMessage': async
