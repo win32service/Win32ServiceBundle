@@ -9,6 +9,7 @@ require_once \dirname(__DIR__, 2).'/Win32serviceState.php';
 use Doctrine\DBAL\Driver\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Win32Service\Model\AbstractServiceRunner;
 use Win32Service\Model\ServiceIdentifier;
 use Win32Service\Model\Win32serviceState;
 use Win32ServiceBundle\Model\MessengerServiceRunner;
@@ -57,28 +58,29 @@ final class FaillureRetryMessageTest extends KernelTestCase
         $runner->setServiceId(new ServiceIdentifier($serviceName));
         $runner->doRun(1, 0);
 
-        $c = $connexion->query('SELECT count(*) FROM messenger_messages WHERE queue_name = \'default\'');
+        $c = $connexion->query('SELECT count(*) FROM messenger_messages WHERE queue_name = \'default\' AND delivered_at IS NULL');
+        $this->assertSame(1, (int) $c->fetchOne());
 
-        $this->assertSame(2, (int) $c->fetchOne());
+        $c = $connexion->query('SELECT count(*) FROM messenger_messages WHERE queue_name = \'default\' AND delivered_at IS NOT NULL');
+        $this->assertSame(1, (int) $c->fetchOne());
 
+        $msrRefrection = new \ReflectionClass(AbstractServiceRunner::class);
+        $stopRequestedProperty = $msrRefrection->getProperty('stopRequested');
+        $stopRequestedProperty->setAccessible(true);
+
+        Win32serviceState::reset();
+        $stopRequestedProperty->setValue($runner, false);
+
+        usleep(1_500_000);
+
+        $runner->doRun(1, 0);
         $connexion->commit();
         $connexion->beginTransaction();
-        for ($i = 0; $i < 3; ++$i) {
-            Win32serviceState::reset();
-            usleep(1_500_000);
 
-            $runner->doRun(1, 0);
-            $connexion->commit();
-            $connexion->beginTransaction();
+        $c = $connexion->query('SELECT count(*) FROM messenger_messages WHERE queue_name = \'default\' AND delivered_at IS NOT NULL');
+        $this->assertSame(1, (int) $c->fetchOne());
 
-            $c = $connexion->query('SELECT count(*) FROM messenger_messages WHERE queue_name = \'default\'');
-            $this->assertSame(2, (int) $c->fetchOne());
-        }
-
-        $connexion->commit();
-        $connexion->beginTransaction();
-        $c = $connexion->query('SELECT count(*) FROM messenger_messages WHERE queue_name = \'failed\'');
-
+        $c = $connexion->query('SELECT count(*) FROM messenger_messages WHERE queue_name = \'failed\' AND delivered_at IS NULL');
         $this->assertSame(1, (int) $c->fetchOne());
     }
 }
