@@ -16,7 +16,7 @@ use Win32ServiceBundle\DependencyInjection\TagRunnerCompilerPass;
 
 class Win32ServiceBundle extends Bundle
 {
-    public function build(ContainerBuilder $container): void
+    public function build(ContainerBuilder $container)
     {
         $autoconfig = $container->registerForAutoconfiguration(RunnerServiceInterface::class);
         $autoconfig->addTag(TagRunnerCompilerPass::WIN32SERVICE_RUNNER_TAG);
