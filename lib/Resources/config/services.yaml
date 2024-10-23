@@ -12,3 +12,24 @@ services:
     arguments:
       - '%win32service.config%'
       - '%kernel.environment%'
+
+  Win32ServiceBundle\MessengerSubscriber\AddErrorDetailsStampListener: ~
+
+
+  Win32ServiceBundle\MessengerSubscriber\SendFailedMessageForRetryListener:
+    arguments:
+      $retryStrategyLocator: '@messenger.retry_strategy_locator'
+      $logger: '@logger'
+      $eventDispatcher: '@event_dispatcher'
+    tags:
+      - { name: 'monolog.logger', channel: 'messenger' }
+
+  Win32ServiceBundle\MessengerSubscriber\SendFailedMessageToFailureTransportListener:
+    arguments:
+      $logger: '@logger'
+    tags:
+      - {name: 'monolog.logger', channel: 'messenger'}
+
+  Win32ServiceBundle\MessengerSubscriber\ResetServicesListener:
+    arguments:
+      - '@services_resetter'
