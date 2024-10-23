@@ -26,7 +26,6 @@ use Win32ServiceBundle\Event\MessengerWorkerMessageFailedEvent;
 use Win32ServiceBundle\Event\MessengerWorkerMessageHandledEvent;
 use Win32ServiceBundle\Event\MessengerWorkerRunningEvent;
 use Win32ServiceBundle\Event\MessengerWorkerStartedEvent;
-use Win32ServiceBundle\Event\MessengerWorkerStoppedEvent;
 use Win32ServiceBundle\MessengerSubscriber\StopWorkerOnFailureLimitListener;
 use Win32ServiceBundle\MessengerSubscriber\StopWorkerOnMemoryLimitListener;
 use Win32ServiceBundle\MessengerSubscriber\StopWorkerOnMessageLimitListener;
@@ -153,8 +152,6 @@ final class MessengerServiceRunner extends AbstractServiceRunner
                 usleep($sleep);
             }
         }
-
-        $this->eventDispatcher->dispatch(new MessengerWorkerStoppedEvent($this));
     }
 
     protected function lastRunIsTooSlow(float $duration): void
