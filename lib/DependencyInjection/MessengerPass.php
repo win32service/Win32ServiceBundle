@@ -8,6 +8,7 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Exception\OutOfBoundsException;
 use Symfony\Component\DependencyInjection\Reference;
+use Win32ServiceBundle\MessengerSubscriber\ResetServicesListener;
 use Win32ServiceBundle\MessengerSubscriber\SendFailedMessageForRetryListener;
 use Win32ServiceBundle\MessengerSubscriber\SendFailedMessageToFailureTransportListener;
 
@@ -51,6 +52,7 @@ final class MessengerPass implements CompilerPassInterface
             $serviceRunnerDefinition = $container->getDefinition($win32ServiceId);
 
             $serviceRunnerDefinition->replaceArgument(1, new Reference('messenger.routable_message_bus'));
+            $serviceRunnerDefinition->replaceArgument(7, new Reference(ResetServicesListener::class));
 
             $serviceRunnerDefinition->replaceArgument(6, array_values($receiverNames));
             try {

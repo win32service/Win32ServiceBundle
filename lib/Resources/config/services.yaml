@@ -13,6 +13,8 @@ services:
       - '%win32service.config%'
       - '%kernel.environment%'
 
+  Win32ServiceBundle\MessengerSubscriber\AddErrorDetailsStampListener: ~
+
 
   Win32ServiceBundle\MessengerSubscriber\SendFailedMessageForRetryListener:
     arguments:

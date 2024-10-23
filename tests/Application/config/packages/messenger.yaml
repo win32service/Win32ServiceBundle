@@ -8,14 +8,20 @@ framework:
 
     transports:
       # https://symfony.com/doc/current/messenger.html#transport-configuration
-      async: '%env(MESSENGER_TRANSPORT_DSN)%'
+      async:
+        dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+        retry_strategy:
+          max_retries: 1
+          delay: 1000
+
       failed: 'doctrine://default?queue_name=failed'
       # sync: 'sync://'
 
     routing:
     # Route your messages to the transports
     # 'App\Message\YourMessage': async
+      'Win32ServiceBundle\Tests\Application\Event\TestFailedMessage': async
+      'Win32ServiceBundle\Tests\Application\Event\TestMemoryLimitMessage': async
       'Win32ServiceBundle\Tests\Application\Event\TestMessage': async
       'Win32ServiceBundle\Tests\Application\Event\TestRetryMessage': async
-      'Win32ServiceBundle\Tests\Application\Event\TestMemoryLimitMessage': async
       'Win32ServiceBundle\Tests\Application\Event\TestTimeLimitMessage': async

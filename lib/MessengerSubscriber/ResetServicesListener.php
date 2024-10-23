@@ -6,8 +6,8 @@ namespace Win32ServiceBundle\MessengerSubscriber;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\DependencyInjection\ServicesResetter;
-use Symfony\Component\Messenger\Event\MessengerWorkerStoppedEvent;
 use Win32ServiceBundle\Event\MessengerWorkerRunningEvent;
+use Win32ServiceBundle\Event\MessengerWorkerStoppedEvent;
 
 /**
  * @author Grégoire Pineau <lyrixx@lyrixx.info>
