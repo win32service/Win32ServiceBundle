@@ -48,6 +48,9 @@
     "doctrine/orm": "^2.19",
     "phpunit/phpunit": "^9.6"
   },
+  "conflict": {
+    "win32service/service-library": "<1.0.2"
+  },
   "suggest": {
     "ext-win32service": "On Windows only, install this extension to run PHP Service on Windows Service Manager"
   },

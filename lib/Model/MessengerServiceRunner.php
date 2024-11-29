@@ -20,6 +20,7 @@ use Symfony\Component\Messenger\Stamp\FlushBatchHandlersStamp;
 use Symfony\Component\Messenger\Stamp\NoAutoAckStamp;
 use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 use Symfony\Component\Messenger\Transport\Receiver\ReceiverInterface;
+use Win32Service\Exception\RecoveryActionException;
 use Win32Service\Model\AbstractServiceRunner;
 use Win32ServiceBundle\Event\MessengerWorkerMessageFailedEvent;
 use Win32ServiceBundle\Event\MessengerWorkerMessageHandledEvent;
@@ -106,6 +107,8 @@ final class MessengerServiceRunner extends AbstractServiceRunner
 
         $this->shouldStop = true;
         $this->requestStop();
+
+        throw new RecoveryActionException('Restart requested');
     }
 
     protected function beforeContinue(): void
