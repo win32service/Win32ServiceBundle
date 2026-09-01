@@ -3,7 +3,11 @@
   "type": "symfony-bundle",
   "description": "Bundle for integrate the win32service/service-library into a Symfony Project",
   "keywords": ["win32service", "service", "windows", "service manager", "symfony", "bundle"],
-  "homepage": "https://win32service.mactronique.fr/bundle.html",
+  "homepage": "https://github.com/win32service",
+  "support": {
+    "issues": "https://github.com/win32service/Win32ServiceBundle/issues",
+    "source": "https://github.com/win32service/Win32ServiceBundle/"
+  },
   "license": "MIT",
   "authors": [
     {
