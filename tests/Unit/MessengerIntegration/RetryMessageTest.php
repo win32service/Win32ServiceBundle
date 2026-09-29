@@ -57,8 +57,10 @@ final class RetryMessageTest extends KernelTestCase
         $runner->setServiceId(new ServiceIdentifier($serviceName));
         $runner->doRun(1, 0);
 
+        // The failing message is rejected (and thus removed from the table) and a new envelope
+        // is scheduled for retry, so only that pending retry message remains.
         $c = $connexion->query('SELECT count(*) FROM messenger_messages WHERE queue_name = \'default\'');
 
-        $this->assertSame(2, (int) $c->fetchOne());
+        $this->assertSame(1, (int) $c->fetchOne());
     }
 }

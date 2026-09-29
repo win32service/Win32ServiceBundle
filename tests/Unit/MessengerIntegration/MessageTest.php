@@ -57,12 +57,15 @@ final class MessageTest extends KernelTestCase
         $runner->setServiceId(new ServiceIdentifier($serviceName));
         $runner->doRun(1, 0);
 
+        // A successfully handled message is acknowledged and removed from the transport table
+        // (Symfony\Component\Messenger\Bridge\Doctrine\Transport\Connection::ack() deletes the row),
+        // it is not kept around with delivered_at set.
         $c = $connexion->query('SELECT count(*) FROM messenger_messages WHERE queue_name = \'default\' AND delivered_at IS NULL');
 
         $this->assertSame(0, (int) $c->fetchOne());
 
         $c = $connexion->query('SELECT count(*) FROM messenger_messages WHERE queue_name = \'default\' AND delivered_at IS NOT NULL');
 
-        $this->assertSame(1, (int) $c->fetchOne());
+        $this->assertSame(0, (int) $c->fetchOne());
     }
 }

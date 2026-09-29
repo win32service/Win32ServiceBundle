@@ -63,7 +63,6 @@ final class LimitNbMessageTest extends KernelTestCase
 
         $rClass = new \ReflectionClass(AbstractServiceRunner::class);
         $value = $rClass->getProperty('stopRequested');
-        $value->setAccessible(true);
 
         $this->assertTrue($value->getValue($runner));
 
@@ -72,7 +71,7 @@ final class LimitNbMessageTest extends KernelTestCase
         $this->assertSame(10, (int) $c->fetchOne());
 
         $c = $connexion->query('SELECT count(*) FROM messenger_messages WHERE queue_name = \'default\' AND delivered_at IS NOT NULL');
-        // Other message has been deleted, only last processed message is keep
-        $this->assertSame(1, (int) $c->fetchOne());
+        // The 10 processed messages have been acknowledged and removed from the table entirely.
+        $this->assertSame(0, (int) $c->fetchOne());
     }
 }
