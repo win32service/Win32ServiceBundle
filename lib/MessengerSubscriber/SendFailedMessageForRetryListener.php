@@ -121,12 +121,12 @@ class SendFailedMessageForRetryListener implements EventSubscriberInterface
         // if ALL nested Exceptions are an instance of UnrecoverableExceptionInterface we should not retry
         if ($e instanceof HandlerFailedException) {
             $shouldNotRetry = true;
-            foreach ($e->getNestedExceptions() as $nestedException) {
-                if ($nestedException instanceof RecoverableExceptionInterface) {
+            foreach ($this->getWrappedExceptions($e) as $wrappedException) {
+                if ($wrappedException instanceof RecoverableExceptionInterface) {
                     return true;
                 }
 
-                if (!$nestedException instanceof UnrecoverableExceptionInterface) {
+                if (!$wrappedException instanceof UnrecoverableExceptionInterface) {
                     $shouldNotRetry = false;
                     break;
                 }
@@ -141,6 +141,23 @@ class SendFailedMessageForRetryListener implements EventSubscriberInterface
         }
 
         return $retryStrategy->isRetryable($envelope, $e);
+    }
+
+    /**
+     * HandlerFailedException::getNestedExceptions() is deprecated as of Symfony 6.4
+     * and was removed in Symfony 7.0.
+     * This function permits compatibility from Symfony 5.4 through Symfony 7.4 but
+     * will be removed once Symfony 5.4 is no longer compatible.
+     *
+     * @return \Throwable[]
+     */
+    private function getWrappedExceptions(HandlerFailedException $e): array
+    {
+        if (\is_callable([$e, 'getWrappedExceptions'])) {
+            return $e->getWrappedExceptions();
+        }
+
+        return $e->getNestedExceptions();
     }
 
     private function getRetryStrategyForTransport(string $alias): ?RetryStrategyInterface
