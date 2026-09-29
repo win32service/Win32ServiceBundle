@@ -62,7 +62,6 @@ final class MemoryLimitMessageTest extends KernelTestCase
 
         $rClass = new \ReflectionClass(AbstractServiceRunner::class);
         $value = $rClass->getProperty('stopRequested');
-        $value->setAccessible(true);
 
         $this->assertTrue($value->getValue($runner));
 
@@ -70,8 +69,10 @@ final class MemoryLimitMessageTest extends KernelTestCase
 
         $this->assertSame(1, (int) $c->fetchOne());
 
+        // The memory-limit message has been processed successfully and acknowledged, so it has
+        // been removed from the table entirely (it is not kept around with delivered_at set).
         $c = $connexion->query('SELECT count(*) FROM messenger_messages WHERE queue_name = \'default\' AND delivered_at IS NOT NULL');
 
-        $this->assertSame(1, (int) $c->fetchOne());
+        $this->assertSame(0, (int) $c->fetchOne());
     }
 }

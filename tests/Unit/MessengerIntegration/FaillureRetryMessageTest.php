@@ -58,15 +58,17 @@ final class FaillureRetryMessageTest extends KernelTestCase
         $runner->setServiceId(new ServiceIdentifier($serviceName));
         $runner->doRun(1, 0);
 
+        // The failing message is rejected (and thus removed from the table by
+        // Connection::reject(), which also deletes the row) and a new envelope is
+        // scheduled for retry, so only that pending retry message remains, undelivered.
         $c = $connexion->query('SELECT count(*) FROM messenger_messages WHERE queue_name = \'default\' AND delivered_at IS NULL');
         $this->assertSame(1, (int) $c->fetchOne());
 
         $c = $connexion->query('SELECT count(*) FROM messenger_messages WHERE queue_name = \'default\' AND delivered_at IS NOT NULL');
-        $this->assertSame(1, (int) $c->fetchOne());
+        $this->assertSame(0, (int) $c->fetchOne());
 
         $msrRefrection = new \ReflectionClass(AbstractServiceRunner::class);
         $stopRequestedProperty = $msrRefrection->getProperty('stopRequested');
-        $stopRequestedProperty->setAccessible(true);
 
         Win32serviceState::reset();
         $stopRequestedProperty->setValue($runner, false);
@@ -77,8 +79,10 @@ final class FaillureRetryMessageTest extends KernelTestCase
         $connexion->commit();
         $connexion->beginTransaction();
 
+        // The retry attempt also fails and has exhausted max_retries, so the message is rejected
+        // from the 'default' queue (removing the row) and sent to the 'failed' transport instead.
         $c = $connexion->query('SELECT count(*) FROM messenger_messages WHERE queue_name = \'default\' AND delivered_at IS NOT NULL');
-        $this->assertSame(1, (int) $c->fetchOne());
+        $this->assertSame(0, (int) $c->fetchOne());
 
         $c = $connexion->query('SELECT count(*) FROM messenger_messages WHERE queue_name = \'failed\' AND delivered_at IS NULL');
         $this->assertSame(1, (int) $c->fetchOne());
