@@ -1,0 +1,19 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    # autoconfigure is disabled on these two: Win32ServiceBundle::build() registers
+    # an automatic (alias-less) "win32service.runner" tag for any RunnerServiceInterface
+    # implementation via registerForAutoconfiguration(), which duplicates the manual
+    # tag below and crashes RunnerManager::addRunner() with a TypeError (it requires a
+    # non-null string alias). Disabling autoconfigure here avoids that duplicate tag.
+    Win32ServiceBundle\Tests\WindowsApplication\Runner\NominalRunner:
+        autoconfigure: false
+        tags:
+            - { name: win32service.runner, alias: 'wtst_nominal' }
+
+    Win32ServiceBundle\Tests\WindowsApplication\Runner\SlowStartRunner:
+        autoconfigure: false
+        tags:
+            - { name: win32service.runner, alias: 'wtst_slowstart' }

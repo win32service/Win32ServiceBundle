@@ -1,0 +1,22 @@
+win32_service:
+    project_code: wtst
+    services:
+        -
+            service_id: "wtst_nominal"
+            displayed_name: "Win32ServiceBundle CI - Nominal"
+            description: "Nominal service (quick start) used by the Windows real-condition CI workflow."
+        -
+            service_id: "wtst_slowstart"
+            displayed_name: "Win32ServiceBundle CI - Slow start"
+            description: "Service whose setup() takes more than 30 seconds, used to check the real Windows Service Manager startup behaviour."
+            # Run this service under its own dedicated environment (instead of
+            # the default, shared one), so it gets its own, independent
+            # Symfony cache directory. That cache starts cold the first time
+            # this service is started, which is what makes
+            # CacheWarmer\SlowStartCacheWarmer (only registered for that
+            # environment, see config/services_winsvc_slowstart.yaml) actually
+            # slow down the spawned "win32service:run" process itself, rather
+            # than whichever administrative command happens to boot the
+            # shared cache first.
+            script_path: "%kernel.project_dir%/bin/console"
+            script_params: "-e winsvc_slowstart win32service:run wtst_slowstart 0"
