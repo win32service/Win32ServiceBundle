@@ -56,6 +56,7 @@ final class MessengerServiceRunner extends AbstractServiceRunner
         private ?ResetServicesListener $resetServicesListener = null,
         private array $busIds = [],
     ) {
+        parent::__construct();
         $this->unacks = new \SplObjectStorage();
     }
 
