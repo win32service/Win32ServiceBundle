@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Win32ServiceBundle\Tests\Windows;
 
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
-use Win32ServiceBundle\Tests\WindowsApplication\Runner\SlowStartRunner;
+use Win32ServiceBundle\Tests\WindowsApplication\CacheWarmer\SlowStartCacheWarmer;
 
 /**
  * Real-condition test, meant to run on an actual Windows machine with the
@@ -23,6 +24,14 @@ final class ServiceLifecycleTest extends TestCase
     private const NOMINAL_SERVICE = 'wtst_nominal';
     private const SLOW_START_SERVICE = 'wtst_slowstart';
     private const SERVICES = [self::NOMINAL_SERVICE, self::SLOW_START_SERVICE];
+
+    /**
+     * The "wtst_slowstart" service runs under its own dedicated environment
+     * (see config/packages/win32service.yaml), so that its Symfony cache can
+     * be forced cold independently of the shared environment used by every
+     * other command in this test.
+     */
+    private const SLOW_START_CACHE_DIR = __DIR__.'/../WindowsApplication/var/cache/winsvc_slowstart';
 
     protected function setUp(): void
     {
@@ -75,39 +84,40 @@ final class ServiceLifecycleTest extends TestCase
         self::assertTrue($reachedRunning, 'The nominal service never reached the "running" state.');
         self::assertLessThan(15.0, $duration, 'The nominal service should start in a few seconds.');
 
-        // --- Slow-start service: setup() runs for more than 30 seconds before
-        //     the service can report WIN32_SERVICE_RUNNING, without updating
-        //     its checkpoint in the meantime. This checks whether the real
-        //     Windows Service Manager kills it as "not responding" or really
-        //     waits for it. ---
-        $start = microtime(true);
-        $result = $this->runConsole(['win32service:action', 'start', '--service-name='.self::SLOW_START_SERVICE], 30);
-        self::assertSame(
-            0,
-            $result->getExitCode(),
-            "Unable to request start of the slow-start service:\n".$result->getOutput().$result->getErrorOutput()
-        );
+        // --- Slow-start service: force its dedicated environment's container
+        //     cache cold (deleting it directly, without booting its kernel),
+        //     so the simulated slow cache warmup (SlowStartCacheWarmer)
+        //     happens inside the kernel boot of the spawned "win32service:run"
+        //     process itself, before it even registers its control dispatcher
+        //     with the Windows Service Manager. The "action start" call below
+        //     blocks on that (win32_start_service() only returns once the
+        //     service registers), so it is itself expected to take more than
+        //     30 seconds. This checks whether the real Windows Service
+        //     Manager kills the service as "not responding" or really waits
+        //     for it. ---
+        (new Filesystem())->remove(self::SLOW_START_CACHE_DIR);
 
-        [$reachedRunning, $neverKilled] = $this->waitForRunningWithoutBeingKilled(
-            self::SLOW_START_SERVICE,
-            SlowStartRunner::SETUP_DURATION_SECONDS + 30
+        $start = microtime(true);
+        $result = $this->runConsole(
+            ['win32service:action', 'start', '--service-name='.self::SLOW_START_SERVICE],
+            SlowStartCacheWarmer::DELAY_SECONDS + 30
         );
         $duration = microtime(true) - $start;
 
-        self::assertTrue(
-            $neverKilled,
-            'The Windows Service Manager stopped/killed the service while its setup() (which takes '
-            .SlowStartRunner::SETUP_DURATION_SECONDS.' seconds) was still running. This is the exact '
-            .'real-condition regression this test is meant to catch.'
-        );
-        self::assertTrue(
-            $reachedRunning,
-            'The slow-start service never reached the "running" state within the allotted time.'
+        self::assertSame(
+            0,
+            $result->getExitCode(),
+            'Unable to request start of the slow-start service (the Windows Service Manager likely considered it '
+            ."\"not responding\" and killed it):\n".$result->getOutput().$result->getErrorOutput()
         );
         self::assertGreaterThan(
             30.0,
             $duration,
-            'The slow-start service setup() is expected to really take more than 30 seconds.'
+            'The slow-start service boot (simulated cache warmup) is expected to really take more than 30 seconds.'
+        );
+        self::assertTrue(
+            $this->waitForState(self::SLOW_START_SERVICE, 'running', 15),
+            'The slow-start service never reached the "running" state.'
         );
 
         // --- Stop both services. ---
@@ -168,34 +178,6 @@ final class ServiceLifecycleTest extends TestCase
         } while (microtime(true) < $deadline);
 
         return $this->queryState($serviceId) === $expectedState;
-    }
-
-    /**
-     * Polls the service state until it reaches "running", while checking it
-     * never gets stopped/removed in between (which would mean the SCM killed
-     * it during the slow startup).
-     *
-     * @return array{0: bool, 1: bool} [reachedRunning, neverKilled]
-     */
-    private function waitForRunningWithoutBeingKilled(string $serviceId, int $timeoutSeconds): array
-    {
-        $deadline = microtime(true) + $timeoutSeconds;
-        $sawPending = false;
-        do {
-            $state = $this->queryState($serviceId);
-            if ($state === 'running') {
-                return [true, true];
-            }
-            if ($state === 'start_pending') {
-                $sawPending = true;
-            }
-            if ($sawPending && ($state === 'stopped' || $state === 'not_found')) {
-                return [false, false];
-            }
-            usleep(500000);
-        } while (microtime(true) < $deadline);
-
-        return [false, true];
     }
 
     private function runConsole(array $arguments, int $timeoutSeconds): Process

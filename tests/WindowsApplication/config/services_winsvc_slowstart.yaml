@@ -1,0 +1,8 @@
+services:
+    # Only registered under the "winsvc_slowstart" environment (used
+    # exclusively by the spawned "win32service:run" process for the
+    # "wtst_slowstart" service, see config/packages/win32service.yaml), so it
+    # never slows down any other command sharing the default environment.
+    Win32ServiceBundle\Tests\WindowsApplication\CacheWarmer\SlowStartCacheWarmer:
+        autowire: true
+        autoconfigure: true
