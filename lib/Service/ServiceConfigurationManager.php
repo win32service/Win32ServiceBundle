@@ -28,6 +28,10 @@ final class ServiceConfigurationManager
             $scriptParams = $service['script_params'];
             $scriptPath = $service['script_path'];
 
+            if ($service['machine'] === '') {
+                $service['machine'] = gethostname() ?: '';
+            }
+
             for ($i = 0; $i < $threadNumber; ++$i) {
                 $serviceThreadId = sprintf($runnerAlias, $i);
                 $runnerNameId = sprintf($runnerName, $i);
