@@ -1,0 +1,11 @@
+win32_service:
+    project_code: wtst
+    services:
+        -
+            service_id: "wtst_nominal"
+            displayed_name: "Win32ServiceBundle CI - Nominal"
+            description: "Nominal service (quick start) used by the Windows real-condition CI workflow."
+        -
+            service_id: "wtst_slowstart"
+            displayed_name: "Win32ServiceBundle CI - Slow start"
+            description: "Service whose setup() takes more than 30 seconds, used to check the real Windows Service Manager startup behaviour."

@@ -1,0 +1,118 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Windows real-condition tests
+
+on:
+  push:
+    branches: [ "2.x" ]
+  pull_request:
+    branches: [ "2.x" ]
+  workflow_dispatch:
+    inputs:
+      win32service_version:
+        description: 'Exact version of win32service/win32service to install via PIE (leave empty to use the latest stable release found on Packagist)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  windows-service-lifecycle:
+    strategy:
+      fail-fast: false
+      matrix:
+#        php: [ '8.1', '8.2', '8.3', '8.4', '8.5' ]
+#        thread-safety: [ 'nts', 'ts' ]
+#        symfony: [ '5.4.*', '6.4.*', '7.4.*' ]
+        php: [  '8.5' ]
+        thread-safety: [ 'nts' ]
+        symfony: [ '7.4.*' ]
+        exclude:
+          # Symfony 7.x requires PHP >= 8.2.
+          - php: '8.1'
+            symfony: '7.4.*'
+          # Symfony 5.4 is an older LTS not tested/maintained against the newest PHP versions.
+          - php: '8.4'
+            symfony: '5.4.*'
+          - php: '8.5'
+            symfony: '5.4.*'
+
+    runs-on: windows-latest
+    timeout-minutes: 20
+
+    env:
+      APP_ENV: test
+      # Read by the globally-required symfony/flex plugin to pin every symfony/*
+      # package (including transitive ones) to the version under test.
+      SYMFONY_REQUIRE: ${{ matrix.symfony }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      #  To automatically get bug fixes and new Php versions for shivammathur/setup-php,
+      # change this to (see https://github.com/shivammathur/setup-php#bookmark-versioning):
+      # uses: shivammathur/setup-php@v2
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: pie
+        env:
+          phpts: ${{ matrix.thread-safety }}
+
+      - name: Resolve win32service/win32service version
+        id: resolve-version
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          input_version="${{ github.event.inputs.win32service_version }}"
+          if [ -n "$input_version" ]; then
+            echo "Using version provided via workflow_dispatch input: $input_version"
+            echo "version=$input_version" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          json=$(curl -fsSL https://repo.packagist.org/p2/win32service/win32service.json)
+          stable=$(echo "$json" | jq -r '.packages["win32service/win32service"][].version' | grep -viE 'dev|alpha|beta|rc' | sort -V | tail -n1)
+
+          if [ -z "$stable" ]; then
+            echo "::warning::No stable release of win32service/win32service was found on Packagist; falling back to the newest available (pre-release) version."
+            stable=$(echo "$json" | jq -r '.packages["win32service/win32service"][].version' | sort -V | tail -n1)
+          fi
+
+          echo "Resolved win32service/win32service version: $stable"
+          echo "version=$stable" >> "$GITHUB_OUTPUT"
+
+      - name: Install win32service/win32service via PIE
+        shell: bash
+        run: pie install "win32service/win32service:${{ steps.resolve-version.outputs.version }}"
+
+      - name: Check the win32service extension is loaded
+        shell: bash
+        run: php -m | grep -i win32service
+
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v6
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php${{ matrix.php }}-${{ matrix.thread-safety }}-sf${{ matrix.symfony }}-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php${{ matrix.php }}-${{ matrix.thread-safety }}-sf${{ matrix.symfony }}-
+
+      - name: Require Symfony Flex globally
+        shell: bash
+        run: |
+          composer global config --no-plugins allow-plugins.symfony/flex true
+          composer global require --no-progress --no-interaction symfony/flex
+
+      - name: Install Dependencies (resolved against Symfony ${{ matrix.symfony }})
+        shell: bash
+        run: composer update -q --no-ansi --no-interaction --no-progress --prefer-dist
+
+      - name: Execute the real-condition Windows service lifecycle test via PHPUnit
+        run: vendor/bin/phpunit --bootstrap tests/bootstrap.php tests/Windows
